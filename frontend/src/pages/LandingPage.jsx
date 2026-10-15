@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Zap, FileText, MessageSquare, Briefcase, Map, FolderKanban,
   ArrowRight, CheckCircle2, Shield, Sparkles, TrendingUp,
-  Cpu, Award, Users, ChevronRight
+  Cpu, Award, Users, ChevronRight, Terminal, BarChart3, Check, Star
 } from 'lucide-react';
 import { LinkedInIcon } from '../components/common/Icons';
 
 export default function LandingPage() {
+  const [previewTab, setPreviewTab] = useState('resume');
+
   return (
     <div className="landing-page">
       {/* Navbar */}
@@ -24,7 +27,7 @@ export default function LandingPage() {
           <nav className="landing-nav-links">
             <a href="#features" className="landing-nav-link">Features</a>
             <a href="#how-it-works" className="landing-nav-link">How it Works</a>
-            <a href="#modules" className="landing-nav-link">Modules</a>
+            <a href="#preview" className="landing-nav-link">Live Cockpit</a>
             <a href="#philosophy" className="landing-nav-link">About</a>
           </nav>
 
@@ -47,6 +50,7 @@ export default function LandingPage() {
 
         <div className="landing-container text-center relative z-10">
           <div className="badge badge-brand mb-6 inline-flex items-center gap-2 px-4 py-1.5 shadow-sm">
+            <span className="pulse-dot" />
             <Sparkles size={15} className="text-brand-400" />
             <span className="font-semibold text-xs tracking-wider uppercase">Next-Gen Career Accelerator</span>
             <span className="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full font-bold">100% Free</span>
@@ -91,6 +95,124 @@ export default function LandingPage() {
             <div className="hero-stat-item">
               <div className="hero-stat-number">0 Paid</div>
               <div className="hero-stat-label">No Subscriptions</div>
+            </div>
+          </div>
+
+          {/* Interactive Hero Showcase Window */}
+          <div id="preview" className="hero-preview-window">
+            <div className="preview-window-header">
+              <div className="window-dots">
+                <span className="window-dot red" />
+                <span className="window-dot yellow" />
+                <span className="window-dot green" />
+              </div>
+              <div className="preview-tabs">
+                <button
+                  onClick={() => setPreviewTab('resume')}
+                  className={`preview-tab-btn ${previewTab === 'resume' ? 'active' : ''}`}
+                >
+                  <FileText size={13} className="inline mr-1" />
+                  ATS Resume Audit
+                </button>
+                <button
+                  onClick={() => setPreviewTab('interview')}
+                  className={`preview-tab-btn ${previewTab === 'interview' ? 'active' : ''}`}
+                >
+                  <MessageSquare size={13} className="inline mr-1" />
+                  STAR Mock Interview
+                </button>
+                <button
+                  onClick={() => setPreviewTab('jobs')}
+                  className={`preview-tab-btn ${previewTab === 'jobs' ? 'active' : ''}`}
+                >
+                  <Briefcase size={13} className="inline mr-1" />
+                  JD Match & Gaps
+                </button>
+              </div>
+              <div className="text-xs text-muted font-mono flex items-center gap-1.5 hidden-mobile">
+                <Terminal size={12} className="text-brand-400" />
+                <span>ai-engine: active</span>
+              </div>
+            </div>
+
+            <div className="preview-body">
+              {previewTab === 'resume' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                  <div className="p-4 rounded-xl border border-brand-500/30 bg-brand-500/5 text-center">
+                    <span className="text-xs uppercase font-semibold text-muted">ATS Health Score</span>
+                    <div className="text-4xl font-black text-emerald-400 mt-1">88/100</div>
+                    <span className="badge badge-accent mt-2">Ready for Top Tier ATS</span>
+                  </div>
+                  <div className="md:col-span-2 space-y-3">
+                    <div className="p-3 rounded-lg border border-border bg-surface/50">
+                      <div className="text-xs font-bold text-amber-400 flex items-center gap-1 mb-1">
+                        <Sparkles size={12} /> Bullet Revision Engine
+                      </div>
+                      <div className="text-xs text-muted line-through">
+                        &quot;Worked on backend bugs and helped frontend team with schemas.&quot;
+                      </div>
+                      <div className="text-xs text-emerald-300 font-medium mt-1">
+                        &quot;Engineered 14 PostgreSQL migrations and tuned indexing, cutting p99 query latency by 42% across 10k daily sessions.&quot;
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <span className="tag text-brand-300 border-brand-500/30">Python 95%</span>
+                      <span className="tag text-brand-300 border-brand-500/30">FastAPI 92%</span>
+                      <span className="tag text-brand-300 border-brand-500/30">PostgreSQL 89%</span>
+                      <span className="tag text-brand-300 border-brand-500/30">Docker 84%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {previewTab === 'interview' && (
+                <div className="space-y-4">
+                  <div className="p-3.5 rounded-xl border border-border bg-surface/60">
+                    <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-1">
+                      System Design & Incident Response
+                    </div>
+                    <div className="text-sm font-bold text-primary">
+                      &quot;Describe a situation where a production deployment caused database locks. What steps did you take?&quot;
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                    <div className="p-2.5 rounded-lg border border-border bg-surface/40">
+                      <div className="text-[11px] text-muted font-semibold">Situation</div>
+                      <div className="text-lg font-black text-emerald-400">94%</div>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-border bg-surface/40">
+                      <div className="text-[11px] text-muted font-semibold">Task</div>
+                      <div className="text-lg font-black text-emerald-400">90%</div>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-border bg-surface/40">
+                      <div className="text-[11px] text-muted font-semibold">Action</div>
+                      <div className="text-lg font-black text-brand-400">96%</div>
+                    </div>
+                    <div className="p-2.5 rounded-lg border border-border bg-surface/40">
+                      <div className="text-[11px] text-muted font-semibold">Result</div>
+                      <div className="text-lg font-black text-emerald-400">88%</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {previewTab === 'jobs' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                  <div className="p-4 rounded-xl border border-border bg-surface/50">
+                    <span className="badge badge-brand mb-1">94% Match Fit</span>
+                    <div className="font-bold text-sm text-primary">Full-Stack Engineer</div>
+                    <div className="text-xs text-muted">Remote • Freshers Eligible</div>
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <div className="text-xs text-secondary font-semibold">
+                      Matched Skills: Python, React, RESTful APIs, Git
+                    </div>
+                    <div className="text-xs text-amber-300 font-medium p-2 rounded border border-amber-500/20 bg-amber-500/5">
+                      ⚠️ Skill Gap: Docker Containerization • Free Roadmap step ready in 1 click
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
