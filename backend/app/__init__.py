@@ -171,6 +171,8 @@ def init_db(app: Flask):
     """
     with app.app_context():
         try:
+            # Ensure models are imported into SQLAlchemy metadata before create_all
+            import app.models  # noqa: F401
             db.create_all()
             from app.models import User
             demo_email = "demo@careercraft.io"
@@ -188,5 +190,5 @@ def init_db(app: Flask):
                 app.logger.info("Demo user initialized successfully.")
         except Exception as e:
             db.session.rollback()
-            app.logger.warning(f"Database initialization notice: {e}")
+            app.logger.error(f"Database initialization error: {e}")
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, MessageSquare, Briefcase, Map,
-  FolderKanban, User, LogOut, ChevronLeft, ChevronRight, Zap, Menu, X
+  FolderKanban, User, LogOut, ChevronLeft, ChevronRight, Menu, X
 } from 'lucide-react';
 import { LinkedInIcon } from '../common/Icons';
 import { useAuth } from '../../context/AuthContext';
@@ -38,58 +38,68 @@ export default function AppLayout() {
     ? user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     : 'U';
 
+  const isCollapsed = collapsed && !mobileOpen;
+
   return (
     <div className="app-layout">
-      {/* Mobile overlay */}
+      {/* Mobile overlay backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-90"
-          style={{ zIndex: 99 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+          style={{ zIndex: 999 }}
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
           <img src="/logo.png" alt="CareerCraft Logo" className="sidebar-logo-img" />
-          {!collapsed && (
+          {!isCollapsed && (
             <span className="sidebar-logo-text">
               Career<span>Craft</span>
             </span>
           )}
+          {mobileOpen && (
+            <button
+              className="btn btn-ghost btn-icon ml-auto text-muted hover:text-white"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
-
 
         {/* Nav */}
         <nav className="sidebar-nav">
-          {!collapsed && <div className="sidebar-section-title">Main</div>}
+          {!isCollapsed && <div className="sidebar-section-title">Main</div>}
           {NAV_ITEMS.map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}
               to={path}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setMobileOpen(false)}
-              title={collapsed ? label : undefined}
+              title={isCollapsed ? label : undefined}
             >
               <Icon className="nav-icon" size={20} />
-              {!collapsed && <span>{label}</span>}
+              {!isCollapsed && <span>{label}</span>}
             </NavLink>
           ))}
 
           <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-            {!collapsed && <div className="sidebar-section-title">Account</div>}
+            {!isCollapsed && <div className="sidebar-section-title">Account</div>}
             {BOTTOM_ITEMS.map(({ label, icon: Icon, path }) => (
               <NavLink
                 key={path}
                 to={path}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => setMobileOpen(false)}
-                title={collapsed ? label : undefined}
+                title={isCollapsed ? label : undefined}
               >
                 <Icon className="nav-icon" size={20} />
-                {!collapsed && <span>{label}</span>}
+                {!isCollapsed && <span>{label}</span>}
               </NavLink>
             ))}
           </div>
@@ -97,12 +107,12 @@ export default function AppLayout() {
 
         {/* Bottom */}
         <div className="sidebar-bottom">
-          {!collapsed && (
+          {!isCollapsed && (
             <div className="flex items-center gap-3 mb-3 p-2">
               <div className="user-avatar" style={{ width: 32, height: 32, fontSize: '0.75rem' }}>
                 {initials}
               </div>
-              <div style={{ flex: 1, overflow: 'hidden' }}>
+              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                 <div className="text-sm font-semibold truncate">{user?.name}</div>
                 <div className="text-xs text-muted truncate">{user?.experience_level || 'Fresher'}</div>
               </div>
@@ -111,18 +121,17 @@ export default function AppLayout() {
           <button
             className="nav-item w-full"
             onClick={handleLogout}
-            title={collapsed ? 'Logout' : undefined}
+            title={isCollapsed ? 'Logout' : undefined}
           >
             <LogOut size={18} className="nav-icon text-danger" />
-            {!collapsed && <span style={{ color: 'var(--rose-500)' }}>Logout</span>}
+            {!isCollapsed && <span style={{ color: 'var(--rose-500)' }}>Logout</span>}
           </button>
 
           {/* Collapse toggle — desktop only */}
           <button
-            className="nav-item w-full"
+            className="nav-item w-full hidden-mobile"
             onClick={() => setCollapsed(c => !c)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            style={{ display: 'none' }}
             id="sidebar-toggle"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -132,21 +141,23 @@ export default function AppLayout() {
       </aside>
 
       {/* Main content */}
-      <div className={`main-content ${collapsed ? 'sidebar-collapsed' : ''}`}>
+      <div className={`main-content ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Topbar */}
         <header className="topbar">
           <div className="topbar-left">
             <button
               className="btn btn-ghost btn-icon"
               onClick={() => setMobileOpen(o => !o)}
-              style={{ display: 'none' }}
               id="mobile-menu-btn"
+              aria-label="Toggle navigation"
             >
               <Menu size={20} />
             </button>
             <button
-              className="btn btn-ghost btn-icon"
+              className="btn btn-ghost btn-icon hidden-mobile"
               onClick={() => setCollapsed(c => !c)}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             </button>
@@ -175,19 +186,6 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          #mobile-menu-btn { display: flex !important; }
-          .sidebar { transform: translateX(-100%); }
-          .sidebar.mobile-open { transform: translateX(0); box-shadow: var(--shadow-xl); }
-          .main-content { margin-left: 0 !important; }
-          .hidden-mobile { display: none; }
-        }
-        @media (min-width: 769px) {
-          #sidebar-toggle { display: flex !important; }
-        }
-      `}</style>
     </div>
   );
 }
