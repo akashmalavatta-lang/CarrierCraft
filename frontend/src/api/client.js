@@ -15,18 +15,27 @@ const api = axios.create({
 // Inject JWT token from localStorage
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('cc_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-// Handle 401 globally — redirect to login
+// Handle 401 globally — DO NOT redirect if the request is login or register
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthRoute =
+      error.config?.url?.includes('/auth/login') ||
+      error.config?.url?.includes('/auth/register');
+
+    if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem('cc_token');
       localStorage.removeItem('cc_user');
-      window.location.href = '/login';
+      const path = window.location.pathname;
+      if (path !== '/login' && path !== '/register' && path !== '/') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

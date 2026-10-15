@@ -12,6 +12,7 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 
 load_dotenv()
+from datetime import timedelta
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -23,9 +24,15 @@ def create_app(config_name: str = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     # ── Core config ──────────────────────────────────────────────────────────
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "cc-secret-career-craft-prod-key-2026-secure")
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "cc-jwt-secret-career-craft-2026-secure-key-32b")
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60 * 60 * 24  # 24 hours (seconds)
+    app.config["SECRET_KEY"] = os.getenv(
+        "SECRET_KEY",
+        "cc-career-craft-super-secure-production-secret-key-32bytes-minimum-length-2026",
+    )
+    app.config["JWT_SECRET_KEY"] = os.getenv(
+        "JWT_SECRET_KEY",
+        "cc-jwt-secret-career-craft-2026-secure-key-minimum-32bytes-sha256-verified",
+    )
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
 
     # Database configuration & path safety
     os.makedirs(app.instance_path, exist_ok=True)
@@ -62,12 +69,14 @@ def create_app(config_name: str = None) -> Flask:
     bcrypt.init_app(app)
     migrate.init_app(app, db)
 
-    raw_cors = os.getenv("CORS_ORIGINS", "*")
-    if raw_cors == "*" or "*" in raw_cors.split(","):
-        CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
-    else:
-        cors_origins = [o.strip() for o in raw_cors.split(",") if o.strip()]
-        CORS(app, origins=cors_origins, supports_credentials=True)
+    # Robust CORS for both local dev and production
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": "*"}},
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        expose_headers=["Content-Type", "Authorization"],
+    )
 
     # ── Blueprints ────────────────────────────────────────────────────────────
     from app.api.auth import auth_bp
@@ -120,10 +129,23 @@ def create_app(config_name: str = None) -> Flask:
                 return send_from_directory(frontend_dist, path)
             return send_from_directory(frontend_dist, "index.html")
 
-    # Ensure tables exist safely
+    # Ensure tables exist safely and seed demo user
     try:
         with app.app_context():
             db.create_all()
+            from app.models import User
+            demo_email = "demo@careercraft.io"
+            if not User.query.filter_by(email=demo_email).first():
+                demo_hash = bcrypt.generate_password_hash("Password123!").decode("utf-8")
+                demo_user = User(
+                    name="Alex Mercer",
+                    email=demo_email,
+                    password_hash=demo_hash,
+                    target_role="Full Stack Developer",
+                    experience_level="fresher",
+                )
+                db.session.add(demo_user)
+                db.session.commit()
     except Exception as e:
         app.logger.warning(f"Database initialization notice: {e}")
 
