@@ -91,13 +91,12 @@ export default function RegisterPage() {
         {/* Left Side: Brand & Benefits */}
         <div className="auth-hero">
           <Link to="/" className="auth-brand" title="Return to home">
-            <div className="auth-logo-badge">
-              <Zap size={22} className="text-white" />
-            </div>
+            <img src="/logo.png" alt="CareerCraft Logo" className="auth-logo-img" />
             <span className="auth-logo-title">
-              <span className="gradient-text font-black">CC</span> Career Craft
+              Career<span className="text-brand-blue">Craft</span>
             </span>
           </Link>
+
 
           <div className="auth-hero-content">
             <div className="badge badge-brand mb-4 inline-flex items-center gap-2">

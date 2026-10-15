@@ -53,15 +53,14 @@ export default function AppLayout() {
       <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <Zap size={18} />
-          </div>
+          <img src="/logo.png" alt="CareerCraft Logo" className="sidebar-logo-img" />
           {!collapsed && (
             <span className="sidebar-logo-text">
-              <span>CC</span> Career Craft
+              Career<span>Craft</span>
             </span>
           )}
         </div>
+
 
         {/* Nav */}
         <nav className="sidebar-nav">
