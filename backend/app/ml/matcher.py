@@ -200,27 +200,24 @@ def _compute_keyword_score(resume_text: str, jd_keywords: List[Tuple[str, float]
 
 def _compute_semantic_score(resume_text: str, jd_text: str) -> Tuple[float, str]:
     """
-    Compute semantic similarity using sentence-transformers.
-    Falls back to simpler Jaccard similarity if transformers unavailable.
+    Compute semantic / contextual similarity between resume and JD.
+    Uses TF-IDF n-gram vectorization and cosine similarity via scikit-learn.
+    Lightweight, fast (<50ms), and memory-efficient for production deployment.
     """
     try:
-        from sentence_transformers import SentenceTransformer
-        import numpy as np
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        # Use first 512 tokens of each to keep it fast
-        r_chunk = resume_text[:2000]
-        j_chunk = jd_text[:2000]
-
-        embeddings = model.encode([r_chunk, j_chunk])
-        cosine = float(
-            np.dot(embeddings[0], embeddings[1]) /
-            (np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1]) + 1e-8)
+        vectorizer = TfidfVectorizer(
+            ngram_range=(1, 2),
+            stop_words="english",
+            max_features=500,
         )
-        # Cosine to 0-100 scale (typical range 0.3–0.9 for similar documents)
-        score = max(0, min(100, (cosine - 0.2) / 0.7 * 100))
-        return score, "sentence-transformers/all-MiniLM-L6-v2"
-
+        tfidf_matrix = vectorizer.fit_transform([resume_text[:4000], jd_text[:4000]])
+        sim = float(cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0])
+        # Scale to 0-100
+        score = round(min(100.0, max(0.0, sim * 125)), 1)
+        return score, "tfidf-cosine-similarity"
     except Exception as e:
         logger.info(f"Semantic similarity using Jaccard fallback: {e}")
         return _jaccard_similarity(resume_text, jd_text), "jaccard-fallback"

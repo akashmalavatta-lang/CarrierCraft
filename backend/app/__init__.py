@@ -23,19 +23,32 @@ def create_app(config_name: str = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     # ── Core config ──────────────────────────────────────────────────────────
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret")
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "cc-secret-career-craft-prod-key-2026-secure")
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "cc-jwt-secret-career-craft-2026-secure-key-32b")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60 * 60 * 24  # 24 hours (seconds)
 
-    # Database
-    db_url = os.getenv("DATABASE_URL", "sqlite:///cc_careercraft.db")
+    # Database configuration & path safety
+    os.makedirs(app.instance_path, exist_ok=True)
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        sqlite_file = os.path.join(app.instance_path, "cc_careercraft.db")
+        db_url = f"sqlite:///{sqlite_file}"
+    elif db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    if db_url.startswith("sqlite"):
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "connect_args": {
+                "timeout": 30,
+                "check_same_thread": False,
+            }
+        }
+
     # File uploads
-    upload_folder = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "uploads"
-    )
+    upload_folder = os.path.join(app.instance_path, "uploads")
     os.makedirs(upload_folder, exist_ok=True)
     app.config["UPLOAD_FOLDER"] = upload_folder
     app.config["MAX_CONTENT_LENGTH"] = int(
@@ -107,8 +120,11 @@ def create_app(config_name: str = None) -> Flask:
                 return send_from_directory(frontend_dist, path)
             return send_from_directory(frontend_dist, "index.html")
 
-    # Ensure tables exist
-    with app.app_context():
-        db.create_all()
+    # Ensure tables exist safely
+    try:
+        with app.app_context():
+            db.create_all()
+    except Exception as e:
+        app.logger.warning(f"Database initialization notice: {e}")
 
     return app

@@ -413,9 +413,9 @@ def _extract_section(text: str, section_name: str) -> Optional[str]:
     section_start = start_match.end()
 
     # Find next section start
-    other_patterns = [v for k, v in SECTION_PATTERNS.items() if k != section_name]
+    other_patterns = [v.replace("(?i)", "") for k, v in SECTION_PATTERNS.items() if k != section_name]
     combined = "|".join(f"({p})" for p in other_patterns)
-    next_section = re.search(combined, text[section_start:])
+    next_section = re.search(combined, text[section_start:], flags=re.IGNORECASE)
 
     if next_section:
         return text[section_start : section_start + next_section.start()]

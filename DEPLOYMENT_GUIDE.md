@@ -52,7 +52,7 @@ All cloud deployment platforms connect directly to your GitHub account to build 
    - **Root Directory**: `backend`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn run:app`
+   - **Start Command**: `gunicorn --config gunicorn.conf.py run:app`
    - **Instance Type**: **Free** ($0/month)
 5. Scroll down to **"Environment Variables"** and add:
    | Key | Value | Notes |
