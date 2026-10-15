@@ -276,15 +276,20 @@ def list_matches():
 
 
 def _update_skill_progress(user_id: int, technical_skills: list, target_role: str):
-    """Upsert skill progress records for extracted skills."""
+    """Upsert skill progress records for extracted skills safely avoiding duplicate insertions."""
+    seen = set()
     for skill_name in technical_skills:
-        existing = SkillProgress.query.filter_by(user_id=user_id, skill_name=skill_name).first()
+        clean_skill = str(skill_name).strip().lower()
+        if not clean_skill or clean_skill in seen:
+            continue
+        seen.add(clean_skill)
+        existing = SkillProgress.query.filter_by(user_id=user_id, skill_name=clean_skill).first()
         if existing:
             existing.is_current = True
         else:
             sp = SkillProgress(
                 user_id=user_id,
-                skill_name=skill_name,
+                skill_name=clean_skill,
                 proficiency=60.0,  # default proficiency for listed skills
                 is_current=True,
                 is_target=False,

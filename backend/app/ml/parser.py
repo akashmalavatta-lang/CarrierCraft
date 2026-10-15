@@ -12,53 +12,68 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def extract_text_from_pdf(file_path: str) -> Optional[str]:
-    """Extract text from a PDF using PyMuPDF (fitz)."""
+def extract_text_from_pdf(file_path: str) -> tuple[Optional[str], Optional[str]]:
+    """
+    Extract text from a PDF using PyMuPDF (fitz).
+    Returns (extracted_text, error_message).
+    """
     try:
         import fitz  # PyMuPDF
         doc = fitz.open(file_path)
+        if doc.is_encrypted:
+            doc.close()
+            return None, "This PDF is password-protected or encrypted. Please remove the password and re-upload."
+
+        if doc.page_count == 0:
+            doc.close()
+            return None, "The PDF file is empty and contains no pages."
+
         pages = []
+        has_images = False
         for page in doc:
-            pages.append(page.get_text("text"))
+            page_text = page.get_text("text")
+            if page_text and page_text.strip():
+                pages.append(page_text.strip())
+            if len(page.get_images()) > 0:
+                has_images = True
         doc.close()
-        return "\n".join(pages)
-    except ImportError:
-        logger.warning("PyMuPDF not installed — trying pdfplumber fallback")
-        return _pdf_fallback(file_path)
+
+        full_text = "\n".join(pages).strip()
+        if len(full_text) < 50:
+            if has_images:
+                return None, "The PDF appears to be a scanned image or photo without an extractable text layer. Please upload a searchable text-based PDF or DOCX."
+            return None, "Insufficient text extracted from the PDF (under 50 characters). Please upload a complete resume."
+
+        return full_text, None
     except Exception as e:
         logger.error(f"PDF extraction failed for {file_path}: {e}")
-        return None
+        return None, f"PDF file could not be parsed: {str(e)}"
 
 
-def _pdf_fallback(file_path: str) -> Optional[str]:
-    """Fallback PDF extraction using pdfplumber if PyMuPDF unavailable."""
-    try:
-        import pdfplumber
-        with pdfplumber.open(file_path) as pdf:
-            return "\n".join(
-                page.extract_text() or "" for page in pdf.pages
-            )
-    except Exception as e:
-        logger.error(f"PDF fallback failed: {e}")
-        return None
-
-
-def extract_text_from_docx(file_path: str) -> Optional[str]:
-    """Extract text from a DOCX file using python-docx."""
+def extract_text_from_docx(file_path: str) -> tuple[Optional[str], Optional[str]]:
+    """
+    Extract text from a DOCX file using python-docx.
+    Returns (extracted_text, error_message).
+    """
     try:
         from docx import Document
         doc = Document(file_path)
-        paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
-        # Also extract table text
+        paragraphs = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+        # Also extract table cells
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    if cell.text.strip():
-                        paragraphs.append(cell.text)
-        return "\n".join(paragraphs)
+                    cell_text = cell.text.strip()
+                    if cell_text and cell_text not in paragraphs:
+                        paragraphs.append(cell_text)
+
+        full_text = "\n".join(paragraphs).strip()
+        if len(full_text) < 50:
+            return None, "The DOCX file contains insufficient text. Please verify the document contains readable text."
+        return full_text, None
     except Exception as e:
         logger.error(f"DOCX extraction failed for {file_path}: {e}")
-        return None
+        return None, f"The DOCX file appears to be corrupted or invalid: {str(e)}"
 
 
 def extract_text(file_path: str) -> dict:
@@ -67,29 +82,29 @@ def extract_text(file_path: str) -> dict:
     Returns dict with 'text', 'success', 'error', 'file_type'.
     """
     if not os.path.exists(file_path):
-        return {"success": False, "error": "File not found", "text": None, "file_type": None}
+        return {"success": False, "error": "File does not exist on server.", "text": None, "file_type": None}
 
     ext = os.path.splitext(file_path)[1].lower()
 
     if ext == ".pdf":
-        text = extract_text_from_pdf(file_path)
+        text, err = extract_text_from_pdf(file_path)
         file_type = "pdf"
     elif ext == ".docx":
-        text = extract_text_from_docx(file_path)
+        text, err = extract_text_from_docx(file_path)
         file_type = "docx"
     else:
         return {
             "success": False,
-            "error": f"Unsupported file type: {ext}",
+            "error": f"Unsupported file type: '{ext}'. Please upload a .pdf or .docx file.",
             "text": None,
             "file_type": None,
         }
 
-    if not text or len(text.strip()) < 50:
+    if err or not text or len(text.strip()) < 50:
         return {
             "success": False,
-            "error": "Could not extract sufficient text from the file. The file may be image-based or corrupted.",
-            "text": text,
+            "error": err or "Could not extract sufficient text from the file.",
+            "text": None,
             "file_type": file_type,
         }
 
@@ -97,10 +112,13 @@ def extract_text(file_path: str) -> dict:
     return {"success": True, "error": None, "text": cleaned, "file_type": file_type}
 
 
+
 def _clean_text(text: str) -> str:
     """Clean extracted text — normalize whitespace, remove garbage chars."""
     # Normalize line endings
     text = text.replace("\r\n", "\n").replace("\r", "\n")
+    # Remove trailing whitespace before newlines
+    text = re.sub(r"[ \t]+\n", "\n", text)
     # Remove excessive blank lines (keep max 2 consecutive)
     text = re.sub(r"\n{3,}", "\n\n", text)
     # Remove non-printable chars except newline/tab
@@ -108,3 +126,4 @@ def _clean_text(text: str) -> str:
     # Collapse multiple spaces
     text = re.sub(r"[ \t]{2,}", " ", text)
     return text.strip()
+

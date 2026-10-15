@@ -21,12 +21,9 @@ def get_dashboard():
         return jsonify({"error": "User not found"}), 404
 
     # ── Resume stats ──────────────────────────────────────────────────────────
-    resumes = Resume.query.filter_by(user_id=user_id).all()
-    latest_resume = None
-    latest_analysis = None
-    if resumes:
-        latest_resume = max(resumes, key=lambda r: r.created_at)
-        latest_analysis = latest_resume.analysis
+    resumes = Resume.query.filter_by(user_id=user_id).order_by(Resume.created_at.desc()).all()
+    latest_resume = resumes[0] if resumes else None
+    latest_analysis = latest_resume.analysis if latest_resume else None
 
     # ── Interview stats ───────────────────────────────────────────────────────
     all_interviews = Interview.query.filter_by(user_id=user_id).all()

@@ -10,6 +10,19 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+def safe_json_loads(val, default):
+    """Safely parse JSON or return default if null/invalid."""
+    import json
+    if not val:
+        return default
+    if isinstance(val, (dict, list)):
+        return val
+    try:
+        return json.loads(val)
+    except Exception:
+        return default
+
+
 # ── User ─────────────────────────────────────────────────────────────────────
 class User(db.Model):
     __tablename__ = "users"
@@ -121,34 +134,33 @@ class ResumeAnalysis(db.Model):
     model_used = db.Column(db.String(100), default="rule-based+spacy")
 
     def to_dict(self):
-        import json
         return {
             "id": self.id,
             "resume_id": self.resume_id,
             "scores": {
-                "overall": round(self.overall_score, 1),
-                "ats": round(self.ats_score, 1),
-                "content": round(self.content_score, 1),
-                "format": round(self.format_score, 1),
-                "skills": round(self.skills_score, 1),
-                "experience": round(self.experience_score, 1),
-                "education": round(self.education_score, 1),
+                "overall": round(self.overall_score or 0.0, 1),
+                "ats": round(self.ats_score or 0.0, 1),
+                "content": round(self.content_score or 0.0, 1),
+                "format": round(self.format_score or 0.0, 1),
+                "skills": round(self.skills_score or 0.0, 1),
+                "experience": round(self.experience_score or 0.0, 1),
+                "education": round(self.education_score or 0.0, 1),
             },
-            "skills_technical": json.loads(self.skills_technical or "[]"),
-            "skills_soft": json.loads(self.skills_soft or "[]"),
-            "education": json.loads(self.education or "[]"),
-            "experience": json.loads(self.experience or "[]"),
-            "projects": json.loads(self.projects or "[]"),
-            "certifications": json.loads(self.certifications or "[]"),
-            "achievements": json.loads(self.achievements or "[]"),
-            "contact_info": json.loads(self.contact_info or "{}"),
-            "strengths": json.loads(self.strengths or "[]"),
-            "weaknesses": json.loads(self.weaknesses or "[]"),
-            "improvements": json.loads(self.improvements or "[]"),
-            "ats_issues": json.loads(self.ats_issues or "[]"),
-            "missing_sections": json.loads(self.missing_sections or "[]"),
-            "keywords": json.loads(self.keywords or "[]"),
-            "model_used": self.model_used,
+            "skills_technical": safe_json_loads(self.skills_technical, []),
+            "skills_soft": safe_json_loads(self.skills_soft, []),
+            "education": safe_json_loads(self.education, []),
+            "experience": safe_json_loads(self.experience, []),
+            "projects": safe_json_loads(self.projects, []),
+            "certifications": safe_json_loads(self.certifications, []),
+            "achievements": safe_json_loads(self.achievements, []),
+            "contact_info": safe_json_loads(self.contact_info, {}),
+            "strengths": safe_json_loads(self.strengths, []),
+            "weaknesses": safe_json_loads(self.weaknesses, []),
+            "improvements": safe_json_loads(self.improvements, []),
+            "ats_issues": safe_json_loads(self.ats_issues, []),
+            "missing_sections": safe_json_loads(self.missing_sections, []),
+            "keywords": safe_json_loads(self.keywords, []),
+            "model_used": self.model_used or "rule-based+spacy",
             "analyzed_at": self.analyzed_at.isoformat() if self.analyzed_at else None,
         }
 
@@ -180,24 +192,23 @@ class JobMatch(db.Model):
     created_at = db.Column(db.DateTime, default=utcnow)
 
     def to_dict(self):
-        import json
         return {
             "id": self.id,
             "job_title": self.job_title,
             "company_name": self.company_name,
             "scores": {
-                "overall": round(self.match_score, 1),
-                "keyword": round(self.keyword_score, 1),
-                "semantic": round(self.semantic_score, 1),
-                "skills": round(self.skills_score, 1),
+                "overall": round(self.match_score or 0.0, 1),
+                "keyword": round(self.keyword_score or 0.0, 1),
+                "semantic": round(self.semantic_score or 0.0, 1),
+                "skills": round(self.skills_score or 0.0, 1),
             },
-            "matched_skills": json.loads(self.matched_skills or "[]"),
-            "missing_skills": json.loads(self.missing_skills or "[]"),
-            "matched_keywords": json.loads(self.matched_keywords or "[]"),
-            "missing_keywords": json.loads(self.missing_keywords or "[]"),
-            "recommendations": json.loads(self.recommendations or "[]"),
-            "mandatory_requirements": json.loads(self.mandatory_requirements or "[]"),
-            "preferred_requirements": json.loads(self.preferred_requirements or "[]"),
+            "matched_skills": safe_json_loads(self.matched_skills, []),
+            "missing_skills": safe_json_loads(self.missing_skills, []),
+            "matched_keywords": safe_json_loads(self.matched_keywords, []),
+            "missing_keywords": safe_json_loads(self.missing_keywords, []),
+            "recommendations": safe_json_loads(self.recommendations, []),
+            "mandatory_requirements": safe_json_loads(self.mandatory_requirements, []),
+            "preferred_requirements": safe_json_loads(self.preferred_requirements, []),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -259,13 +270,12 @@ class InterviewQuestion(db.Model):
     answered_at = db.Column(db.DateTime)
 
     def to_dict(self, include_expected=False):
-        import json
         d = {
             "id": self.id,
             "order_num": self.order_num,
             "question_type": self.question_type,
             "question_text": self.question_text,
-            "rubric": json.loads(self.rubric or "{}"),
+            "rubric": safe_json_loads(self.rubric, {}),
             "user_answer": self.user_answer,
             "score": round(self.score, 1) if self.score is not None else None,
             "feedback": self.feedback,
@@ -299,10 +309,10 @@ class SkillProgress(db.Model):
             "id": self.id,
             "skill_name": self.skill_name,
             "category": self.category,
-            "proficiency": round(self.proficiency, 1),
+            "proficiency": round(self.proficiency or 0.0, 1),
             "is_current": self.is_current,
             "is_target": self.is_target,
-            "gap": round(self.gap, 1),
+            "gap": round(self.gap or 0.0, 1),
         }
 
 
@@ -318,11 +328,10 @@ class LearningRoadmap(db.Model):
     updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow)
 
     def to_dict(self):
-        import json
         return {
             "id": self.id,
             "target_role": self.target_role,
-            "roadmap_data": json.loads(self.roadmap_data or "{}"),
+            "roadmap_data": safe_json_loads(self.roadmap_data, {}),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

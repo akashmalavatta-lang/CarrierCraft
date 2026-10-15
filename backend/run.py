@@ -1,7 +1,9 @@
-"""
-CC — Career Craft
-WSGI entry point for the Flask backend.
-"""
+import os
+import sys
+
+# Ensure backend directory is in sys.path regardless of execution CWD
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
 from app import create_app, db
 from app.models import (
     User, Resume, ResumeAnalysis, Interview, InterviewQuestion,

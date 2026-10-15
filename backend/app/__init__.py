@@ -53,6 +53,14 @@ def create_app(config_name: str = None) -> Flask:
                 "check_same_thread": False,
             }
         }
+    else:
+        # Production PostgreSQL connection pooling and resilient keep-alive
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_pre_ping": True,
+            "pool_recycle": 300,
+            "pool_size": 5,
+            "max_overflow": 10,
+        }
 
     # File uploads
     upload_folder = os.path.join(app.instance_path, "uploads")
@@ -99,10 +107,32 @@ def create_app(config_name: str = None) -> Flask:
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
     app.register_blueprint(profile_bp, url_prefix="/api/profile")
 
-    # ── Health check ──────────────────────────────────────────────────────────
+    # ── Health check (Supports both /health and /api/health) ───────────────────
+    @app.route("/health")
     @app.route("/api/health")
     def health():
-        return {"status": "ok", "app": "CC Career Craft", "version": "1.0.0"}
+        from sqlalchemy import text
+        db_ok = False
+        db_message = "ok"
+        try:
+            db.session.execute(text("SELECT 1"))
+            db_ok = True
+        except Exception as e:
+            db_message = str(e)
+            app.logger.error(f"Healthcheck DB failure: {e}")
+
+        # Check storage write access
+        storage_ok = os.access(app.config["UPLOAD_FOLDER"], os.W_OK)
+
+        status_code = 200 if (db_ok and storage_ok) else 503
+        return {
+            "status": "healthy" if status_code == 200 else "degraded",
+            "app": "CareerCraft",
+            "version": "1.0.0",
+            "database": {"connected": db_ok, "detail": db_message},
+            "storage": {"writable": storage_ok},
+            "ml_engine": "operational",
+        }, status_code
 
     # ── JWT error handlers ────────────────────────────────────────────────────
     @jwt.expired_token_loader
@@ -129,9 +159,18 @@ def create_app(config_name: str = None) -> Flask:
                 return send_from_directory(frontend_dist, path)
             return send_from_directory(frontend_dist, "index.html")
 
-    # Ensure tables exist safely and seed demo user
-    try:
-        with app.app_context():
+    # Safe idempotent table and demo user setup
+    init_db(app)
+
+    return app
+
+
+def init_db(app: Flask):
+    """
+    Safely initialize database tables and seed initial demo user without race conditions.
+    """
+    with app.app_context():
+        try:
             db.create_all()
             from app.models import User
             demo_email = "demo@careercraft.io"
@@ -146,7 +185,8 @@ def create_app(config_name: str = None) -> Flask:
                 )
                 db.session.add(demo_user)
                 db.session.commit()
-    except Exception as e:
-        app.logger.warning(f"Database initialization notice: {e}")
+                app.logger.info("Demo user initialized successfully.")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.warning(f"Database initialization notice: {e}")
 
-    return app

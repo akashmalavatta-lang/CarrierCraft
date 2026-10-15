@@ -494,7 +494,21 @@ def evaluate_answer(
 
     answer_lower = user_answer.lower()
     expected_points = question.get("expected_points", [])
+    if isinstance(expected_points, str):
+        try:
+            expected_points = json.loads(expected_points)
+        except Exception:
+            expected_points = []
+
     rubric = question.get("rubric", {})
+    if isinstance(rubric, str):
+        try:
+            rubric = json.loads(rubric)
+        except Exception:
+            rubric = {}
+    elif not isinstance(rubric, dict):
+        rubric = {}
+
     q_type = question.get("question_type", "behavioral")
     word_count = len(user_answer.split())
 
@@ -556,6 +570,7 @@ def evaluate_answer(
 
     # ── Generate improved answer suggestion ──────────────────────────────────
     improved = _generate_improved_answer(question, user_answer, expected_points)
+    follow_up = _generate_follow_up_question(q_type, question.get("question_text", ""), overall_score)
 
     feedback_text = _build_feedback(overall_score, strengths, improvements, feedback_parts, q_type, rubric)
 
@@ -564,10 +579,32 @@ def evaluate_answer(
         "dimension_scores": {k: round(v, 1) for k, v in scores.items()},
         "feedback": feedback_text,
         "improved_answer": improved,
+        "follow_up_question": follow_up,
         "strengths": strengths[:4],
         "areas_for_improvement": improvements[:4],
         "word_count": word_count,
     }
+
+
+def _generate_follow_up_question(q_type: str, question_text: str, score: float) -> str:
+    """Generate a targeted follow-up question based on answer quality and question domain."""
+    q_text_lower = question_text.lower()
+    if "deadlock" in q_text_lower:
+        return "How would you diagnose and recover from a deadlock in a production database without taking the entire service offline?"
+    if "solid" in q_text_lower:
+        return "Can you share an example where violating the Single Responsibility Principle caused significant maintainability bottlenecks in a real project?"
+    if "bias-variance" in q_text_lower or "overfitting" in q_text_lower:
+        return "How do you systematically decide whether to collect more training samples versus applying stronger regularization or pruning features?"
+    if "url shortening" in q_text_lower:
+        return "How would you ensure sub-10ms redirect latency and handle cache invalidation if this URL shortening service receives 50,000 reads/sec?"
+
+    if q_type == "technical":
+        return "What are the performance or security trade-offs of this approach, and how would you monitor it in production?"
+    elif q_type in ("behavioral", "situational"):
+        return "Looking back, what key takeaway or process change would you apply if you faced an identical situation today?"
+    else:
+        return "Can you provide a concrete example where this approach or philosophy directly benefited a team you worked with?"
+
 
 
 def _score_relevance(answer: str, question: str, expected_points: list) -> float:

@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: careercraft
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn --config backend/gunicorn.conf.py --chdir backend run:app"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: MAX_CONTENT_LENGTH
+        value: 10485760
+      - key: WEB_CONCURRENCY
+        value: 1
+      - key: GUNICORN_TIMEOUT
+        value: 120

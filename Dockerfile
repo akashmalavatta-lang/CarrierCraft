@@ -36,4 +36,4 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 EXPOSE 5000
 
 WORKDIR /app/backend
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "run:app"]
+CMD ["sh", "-c", "gunicorn --config gunicorn.conf.py run:app"]

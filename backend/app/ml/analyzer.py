@@ -405,75 +405,101 @@ def _count_action_verbs(text: str) -> int:
 
 
 def _generate_improvements(sections, skills_data, ats_issues, format_issues,
-                             word_count, achievements, experience, projects) -> List[Dict]:
-    """Generate specific, actionable improvement suggestions."""
+                           word_count, achievements, experience, projects) -> List[Dict]:
+    """
+    Generate evidence-backed, actionable improvement suggestions.
+    Guarantees no fabricated achievements or invented credentials.
+    """
     improvements = []
 
-    # Missing sections
+    # Missing required sections
     for section in REQUIRED_SECTIONS:
         if section not in sections:
             improvements.append({
+                "severity": "high",
                 "priority": "high",
                 "category": "structure",
-                "issue": f"Missing '{section.title()}' section",
-                "action": f"Add a clearly labeled '{section.title()}' section with relevant content",
+                "issue": f"Missing '{section.title()}' Section",
+                "explanation": f"The parser did not detect a standard heading for '{section.title()}'. Most ATS parsers categorize text by section headers.",
+                "evidence": f"Detected sections: {', '.join(sorted(sections)) if sections else 'None'}",
+                "why_it_matters": "Applicant Tracking Systems may fail to categorize your qualifications without standard headers, lowering parse accuracy.",
+                "recommended_correction": f"Add a clearly labeled '{section.title()}' section at the top level of your resume.",
+                "template_example": f"## {section.title()}\n- [Add your verified {section} details here]",
             })
 
+    # Missing recommended sections
     for section in RECOMMENDED_SECTIONS:
         if section not in sections:
             improvements.append({
+                "severity": "medium",
                 "priority": "medium",
                 "category": "structure",
-                "issue": f"No '{section.title()}' section found",
-                "action": f"Consider adding a '{section.title()}' section to strengthen your resume",
+                "issue": f"No '{section.title()}' Section Found",
+                "explanation": f"Including a '{section.title()}' section provides valuable evidence of practical hands-on capability.",
+                "evidence": f"Sections present: {len(sections)}",
+                "why_it_matters": "Recruiters and hiring managers look for tangible evidence of skills applied in practice.",
+                "recommended_correction": f"Consider adding a '{section.title()}' section highlighting 2–3 relevant items.",
+                "template_example": f"## {section.title()}\n- [Item Name]: [Technical contribution and verified outcome]",
             })
 
-    # Skills gaps
-    if len(skills_data["technical"]) < 8:
+    # Technical skills breadth
+    tech_count = len(skills_data.get("technical", []))
+    if tech_count < 8:
         improvements.append({
+            "severity": "high",
             "priority": "high",
             "category": "skills",
-            "issue": f"Only {len(skills_data['technical'])} technical skills detected",
-            "action": "List all relevant technical skills explicitly in a dedicated Skills section. Include programming languages, frameworks, tools, and platforms.",
+            "issue": f"Limited Technical Keywords ({tech_count} detected)",
+            "explanation": "Modern ATS filters parse resumes for explicit skill keywords required by job descriptions.",
+            "evidence": f"Found skills: {', '.join(skills_data.get('technical', [])[:5]) if tech_count else 'None'}",
+            "why_it_matters": "Without explicit keywords, automated resume screenings may filter out your profile before human review.",
+            "recommended_correction": "List all technologies, frameworks, libraries, databases, and developer tools you have actually worked with in a dedicated Skills section.",
+            "template_example": "Languages: Python, JavaScript | Frameworks: React, Flask | Databases: PostgreSQL | Tools: Git, Docker",
         })
 
-    # Quantification
+    # Measurable outcomes / quantification
     quant_count = len(achievements)
-    if quant_count < 3:
+    if quant_count < 2:
         improvements.append({
+            "severity": "high",
             "priority": "high",
             "category": "content",
-            "issue": "Too few quantified achievements",
-            "action": "Add numbers to your bullets: 'Improved API response time by 35%', 'Served 500+ users', 'Reduced deployment time from 2h to 20min'",
+            "issue": "Few Quantifiable Outcomes Detected",
+            "explanation": "Bullet points describe responsibilities rather than measurable business or engineering impact.",
+            "evidence": f"Detected {quant_count} quantified metric patterns in resume text.",
+            "why_it_matters": "Hiring managers prioritize candidates who demonstrate concrete, verifiable results over generic duty lists.",
+            "recommended_correction": "Revise bullet points using the formula: Action Verb + Technical Contribution + Context + Verified Metric. Do not fabricate metrics; specify real measurements (e.g. users served, speedup %, test coverage, queries optimized).",
+            "template_example": "Engineered [feature/service] using [Tech Stack], optimizing [database/API latency] by [your metric, e.g. 25%] across [user count/requests].",
         })
 
-    # Projects
-    if len(projects) < 2:
+    # Project portfolio
+    proj_count = len(projects)
+    if proj_count < 2:
         improvements.append({
+            "severity": "high",
             "priority": "high",
             "category": "projects",
-            "issue": "Insufficient project portfolio",
-            "action": "Add 2–4 meaningful projects with: title, technologies used, your role, and measurable outcomes",
+            "issue": "Project Evidence is Limited",
+            "explanation": f"Found {proj_count} project entries. Strong technical resumes feature 2–3 in-depth projects with architecture details.",
+            "evidence": f"Detected projects: {proj_count}",
+            "why_it_matters": "For students and early career engineers, personal and academic projects serve as primary proof of software engineering competency.",
+            "recommended_correction": "Add 2–3 comprehensive technical projects detailing: problem solved, architectural choices, stack used, and live demo / GitHub link.",
+            "template_example": "[Project Name] | [Tech Stack: e.g. React, Flask, PostgreSQL]\n• Architected [feature] using [tool] to solve [problem], handling [metric, e.g. 500+ records/sec].",
         })
 
-    # Word count
+    # Word count and layout density
     if word_count < 300:
         improvements.append({
+            "severity": "medium",
             "priority": "medium",
             "category": "format",
-            "issue": "Resume is too brief",
-            "action": "Expand experience descriptions with specific contributions and outcomes. Target 400–600 words for a 1-page resume.",
+            "issue": f"Resume Text is Brief ({word_count} words)",
+            "explanation": "The document contains under 300 words, leaving insufficient depth for ATS parsing and recruiter evaluation.",
+            "evidence": f"Current word count: {word_count} words (optimal range: 450–700 words).",
+            "why_it_matters": "Brief resumes frequently miss keyword variations and lack the context required to validate competency.",
+            "recommended_correction": "Flesh out experience and project descriptions with specific technical contributions, tools, and methodologies.",
+            "template_example": "Target 3–4 bullet points per significant project or role, each 1–2 lines in length.",
         })
-
-    # LinkedIn/GitHub
-    for platform in ["linkedin", "github"]:
-        if platform not in str(skills_data).lower():
-            improvements.append({
-                "priority": "medium",
-                "category": "contact",
-                "issue": f"No {platform.title()} profile link",
-                "action": f"Add your {platform.title()} profile URL to your contact section",
-            })
 
     return improvements
 
