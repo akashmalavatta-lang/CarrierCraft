@@ -7,6 +7,8 @@ import {
   Sparkles, CheckCircle2, AlertCircle, KeyRound, Sparkle
 } from 'lucide-react';
 
+import { CareerCraftLogo } from '../../components/common/Icons';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -64,10 +66,7 @@ export default function LoginPage() {
         {/* Left Side: Brand & Value Prop */}
         <div className="auth-hero">
           <Link to="/" className="auth-brand" title="Return to home">
-            <img src="/logo.png" alt="CareerCraft Logo" className="auth-logo-img" />
-            <span className="auth-logo-title">
-              Career<span className="text-brand-blue">Craft</span>
-            </span>
+            <CareerCraftLogo size={36} showText={true} />
           </Link>
 
 

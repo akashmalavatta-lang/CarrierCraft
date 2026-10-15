@@ -1,52 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Zap, FileText, MessageSquare, Briefcase, Map, FolderKanban,
-  ArrowRight, CheckCircle2, Shield, Sparkles, TrendingUp,
-  Cpu, Award, Users, ChevronRight, ChevronLeft, Terminal,
-  BarChart3, Check, Star, PlayCircle
+  UploadCloud, ArrowRight, CheckCircle2, Sparkles,
+  TrendingUp, Award, Check, FileText, MessageSquare,
+  Briefcase, Map, FolderKanban, ShieldCheck, Zap
 } from 'lucide-react';
-import { LinkedInIcon } from '../components/common/Icons';
-
-const SLIDES = [
-  {
-    id: 1,
-    image: '/images/interview_coach.jpg',
-    badge: 'AI Mock Interview Coach',
-    title: 'Simulate Real Technical & Behavioral Rounds',
-    desc: 'Receive immediate STAR rubric evaluations (Situation, Task, Action, Result) with personalized bullet corrections for every response.',
-    ctaPrimary: 'Start Interview Practice Free',
-    ctaPrimaryLink: '/register',
-    ctaSecondary: 'Inspect Rubric Demo',
-    ctaSecondaryLink: '#preview',
-  },
-  {
-    id: 2,
-    image: '/images/resume_audit.jpg',
-    badge: 'Deterministic ATS Scanner',
-    title: 'Beat Screening Algorithms With 90%+ Match',
-    desc: 'Deep-dive keyword density, missing critical sections, quantified metrics, and grammar bottlenecks verified against actual job descriptions.',
-    ctaPrimary: 'Upload Resume Now',
-    ctaPrimaryLink: '/register',
-    ctaSecondary: 'View Sample Audit',
-    ctaSecondaryLink: '#preview',
-  },
-  {
-    id: 3,
-    image: '/images/success_story.jpg',
-    badge: '100% Free For Students & Freshers',
-    title: 'From Campus Candidate To Hired Professional',
-    desc: 'No expensive paywalls or locked features. CareerCraft equips you with real-time job aggregators, project roadmaps, and LinkedIn optimizations.',
-    ctaPrimary: 'Create Free Account',
-    ctaPrimaryLink: '/register',
-    ctaSecondary: 'Explore Roadmaps',
-    ctaSecondaryLink: '/login',
-  },
-];
+import { CareerCraftLogo, LinkedInIcon } from '../components/common/Icons';
+import AtsScoreGauge from '../components/common/AtsScoreGauge';
 
 export default function LandingPage() {
-  const [previewTab, setPreviewTab] = useState('resume');
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('resume');
   const [showIntro, setShowIntro] = useState(() => {
     return !sessionStorage.getItem('cc_intro_seen');
   });
@@ -57,482 +21,447 @@ export default function LandingPage() {
       const timer = setTimeout(() => {
         setShowIntro(false);
         sessionStorage.setItem('cc_intro_seen', 'true');
-      }, 1600);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [showIntro]);
 
-  // Carousel autoplay
-  useEffect(() => {
-    const slideTimer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 5500);
-    return () => clearInterval(slideTimer);
-  }, []);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
-
   return (
-    <div className="landing-page">
+    <div className="landing-page tech-grid-bg text-white min-h-screen">
       {/* ── Initial Intro Entry Animation Overlay ── */}
       {showIntro && (
         <div className="intro-splash-overlay">
           <div className="intro-logo-wrapper">
             <div className="intro-logo-glow" />
-            <img src="/logo.png" alt="CareerCraft Logo" className="intro-logo-img" />
+            <CareerCraftLogo size={80} showText={false} />
           </div>
-          <div className="intro-text-brand">CareerCraft</div>
-          <div className="intro-text-tagline">Build Your Skills. Craft Your Career.</div>
+          <div className="intro-text-brand flex items-center gap-2">
+            <span>CAREER</span>
+            <span className="text-[#F59E0B]">CRAFT</span>
+          </div>
+          <div className="intro-text-tagline">Craft Your Resume. Beat the ATS. Build Your Career.</div>
           <div className="intro-progress-bar">
             <div className="intro-progress-fill" />
           </div>
         </div>
       )}
 
-      {/* ── Navbar ── */}
+      {/* ── Top Navigation Bar (Obsidian & Gold) ── */}
       <header className="landing-nav">
         <div className="landing-nav-container">
           <Link to="/" className="landing-logo">
-            <img src="/logo.png" alt="CareerCraft Official Logo" className="brand-logo-img" />
-            <span className="font-extrabold text-xl tracking-tight text-brand-navy">
-              Career<span className="text-brand-blue">Craft</span>
-            </span>
+            <CareerCraftLogo size={32} showText={true} />
           </Link>
 
           <nav className="landing-nav-links">
-            <a href="#features" className="landing-nav-link">Features</a>
-            <a href="#carousel-showcase" className="landing-nav-link">Showcase</a>
-            <a href="#how-it-works" className="landing-nav-link">How it Works</a>
-            <a href="#preview" className="landing-nav-link">Live Cockpit</a>
-            <a href="#philosophy" className="landing-nav-link">Philosophy</a>
+            <a href="#hero" className="landing-nav-link hover:text-[#FFB800] transition-colors">Home</a>
+            <Link to="/resume" className="landing-nav-link hover:text-[#FFB800] transition-colors">Resume Analyzer</Link>
+            <a href="#ats-preview" className="landing-nav-link hover:text-[#FFB800] transition-colors">ATS Score</a>
+            <a href="#features" className="landing-nav-link hover:text-[#FFB800] transition-colors">Features</a>
+            <a href="#about" className="landing-nav-link hover:text-[#FFB800] transition-colors">About</a>
           </nav>
 
-          <div className="landing-nav-actions">
-            <Link to="/login" className="btn btn-ghost font-semibold">
-              Sign In
+          <div className="landing-nav-actions flex items-center gap-3">
+            <Link to="/login" className="btn btn-ghost px-5 py-2 text-sm font-semibold hover:text-[#FFB800]">
+              Login
             </Link>
-            <Link to="/register" className="btn btn-primary font-bold">
-              <span>Get Started Free</span>
-              <ArrowRight size={16} className="ml-1" />
+            <Link to="/register" className="btn btn-primary px-6 py-2 text-sm font-extrabold shadow-lg">
+              Get Started
             </Link>
           </div>
         </div>
       </header>
 
-      {/* ── Hero Section ── */}
-      <section className="landing-hero">
-        <div className="landing-container text-center relative z-10">
-          <div className="badge badge-brand mb-6 inline-flex items-center gap-2 px-4 py-1.5 shadow-sm">
-            <span className="pulse-dot" />
-            <Sparkles size={15} className="text-brand-blue" />
-            <span className="font-bold text-xs tracking-wider uppercase text-brand-navy">Next-Gen Career Accelerator</span>
-            <span className="badge badge-orange font-bold text-xs">100% Free For Students</span>
-          </div>
+      {/* ── Hero Section (Template Top-Left Mockup) ── */}
+      <section id="hero" className="landing-hero py-16 md:py-24 relative overflow-hidden">
+        <div className="landing-container max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Hero Content */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141926] border border-[#F59E0B]/30 text-[#FFB800] text-xs font-bold tracking-wide">
+                <Sparkles size={14} className="text-[#FFB800]" />
+                <span>AI Powered Resume & ATS Analyzer</span>
+              </div>
 
-          <h1 className="hero-title">
-            Build Your Skills.<br />
-            Craft Your Career.<br />
-            <span className="gradient-text">Crack Your Dream Job.</span>
-          </h1>
+              {/* Title */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.12]">
+                Craft Your Resume.<br />
+                <span className="text-gold">Beat the ATS.</span><br />
+                Build Your Career.
+              </h1>
 
-          <p className="hero-subtitle">
-            The comprehensive, AI-engineered career co-pilot built specifically for students and early-career job seekers. Optimize resumes for ATS algorithms, master technical interviews with STAR feedback, and conquer the hiring funnel.
-          </p>
+              {/* Subtitle */}
+              <p className="text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
+                Upload your resume and get an intelligent ATS analysis with actionable insights to improve your chances of getting noticed.
+              </p>
 
-          <div className="hero-cta-group">
-            <Link to="/register" className="btn btn-primary btn-xl">
-              <span>Launch Your Career Free</span>
-              <ArrowRight size={20} className="ml-2" />
-            </Link>
-            <Link to="/login" className="btn btn-secondary btn-xl">
-              <span>Sign In to Dashboard</span>
-            </Link>
-          </div>
-
-          <div className="hero-stats-banner">
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">100%</div>
-              <div className="hero-stat-label">Free & Open-Source</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">&lt; 3s</div>
-              <div className="hero-stat-label">Instant ATS Analysis</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">STAR</div>
-              <div className="hero-stat-label">Interview Coaching</div>
-            </div>
-            <div className="hero-stat-divider" />
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">0 Paid</div>
-              <div className="hero-stat-label">No Subscriptions</div>
-            </div>
-          </div>
-
-          {/* ── Stock Photo Interactive Carousel Feature ── */}
-          <div id="carousel-showcase" className="hero-carousel-container">
-            {SLIDES.map((slide, index) => {
-              const isActive = index === currentSlide;
-              return (
-                <div
-                  key={slide.id}
-                  className={`hero-carousel-slide ${isActive ? 'active' : ''}`}
-                  style={{ display: isActive ? 'flex' : 'none' }}
+              {/* CTA Button */}
+              <div className="pt-2">
+                <Link
+                  to="/resume"
+                  className="btn btn-primary btn-xl text-black font-extrabold shadow-xl inline-flex items-center gap-2 group"
                 >
-                  <img
-                    src={slide.image}
-                    alt={slide.title}
-                    className="carousel-bg-image"
-                  />
-                  <div className="carousel-gradient-overlay" />
-                  <div className="carousel-content">
-                    <span className="carousel-badge">
-                      <Sparkles size={14} className="mr-1 text-brand-cyan" />
-                      {slide.badge}
+                  <span>Analyze My Resume</span>
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              {/* 3 Micro-Features */}
+              <div className="pt-6 flex flex-wrap items-center gap-6 text-xs sm:text-sm text-gray-300 font-semibold border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#FFB800] flex items-center justify-center text-xs">✦</div>
+                  <span>AI Powered Analysis</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#FFB800] flex items-center justify-center text-xs">✦</div>
+                  <span>Detailed Insights</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#F59E0B]/15 text-[#FFB800] flex items-center justify-center text-xs">✦</div>
+                  <span>Better Job Opportunities</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Hero Visual (Layered 3D Resume + Dark ATS Card with 87 Dial) */}
+            <div className="lg:col-span-5 relative flex justify-center">
+              <div className="hero-mockup-wrapper w-full max-w-md">
+                {/* Golden ambient lighting */}
+                <div className="hero-ambient-ribbon" />
+
+                {/* Angled White Resume Document */}
+                <div className="hero-paper-resume">
+                  <div className="resume-paper-header">
+                    <div className="resume-paper-avatar" />
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3.5 bg-slate-300 rounded w-24" />
+                      <div className="h-2 bg-slate-200 rounded w-16" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 pt-2">
+                    <div className="resume-paper-line w-full" />
+                    <div className="resume-paper-line w-11/12" />
+                    <div className="resume-paper-line w-4/5" />
+                    <div className="resume-paper-line w-full" />
+                    <div className="resume-paper-line w-3/4" />
+                    <div className="resume-paper-line w-5/6" />
+                    <div className="resume-paper-line w-2/3" />
+                  </div>
+                </div>
+
+                {/* Floating Dark Glass ATS Card with Dial 87 and Checklist */}
+                <div className="hero-floating-ats-card">
+                  <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    ATS Analysis
+                  </div>
+
+                  {/* Circular Golden Ring Dial */}
+                  <div className="relative w-28 h-28 mx-auto my-2 flex items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="7" />
+                      <circle
+                        cx="50" cy="50" r="42" fill="none" stroke="url(#atsGoldGradient)" strokeWidth="7"
+                        strokeDasharray="264" strokeDashoffset="34" strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span className="text-2xl font-black text-white leading-none">87</span>
+                      <span className="text-[10px] font-bold text-gray-400">/100</span>
+                    </div>
+                  </div>
+
+                  <div className="text-center mb-4">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      <span>✓</span>
+                      <span>Excellent Match</span>
                     </span>
-                    <h2 className="carousel-title">{slide.title}</h2>
-                    <p className="carousel-desc">{slide.desc}</p>
-                    <div className="carousel-actions">
-                      <Link to={slide.ctaPrimaryLink} className="btn btn-primary btn-lg font-bold">
-                        <span>{slide.ctaPrimary}</span>
-                        <ArrowRight size={18} className="ml-1" />
-                      </Link>
-                      <a href={slide.ctaSecondaryLink} className="btn btn-secondary btn-lg font-semibold">
-                        <span>{slide.ctaSecondary}</span>
-                      </a>
+                  </div>
+
+                  {/* Checklist */}
+                  <div className="space-y-1.5 text-xs text-gray-200">
+                    <div className="flex items-center gap-2">
+                      <Check size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>Skills Match</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>Keyword Match</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>Formatting</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>Experience</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>Education</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-
-            {/* Navigation Buttons */}
-            <button
-              onClick={prevSlide}
-              className="carousel-nav-btn prev"
-              aria-label="Previous Slide"
-            >
-              <ChevronLeft size={22} />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="carousel-nav-btn next"
-              aria-label="Next Slide"
-            >
-              <ChevronRight size={22} />
-            </button>
-
-            {/* Slide Dots */}
-            <div className="carousel-dots">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`carousel-dot ${i === currentSlide ? 'active' : ''}`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Interactive Hero Showcase Window ── */}
-          <div id="preview" className="hero-preview-window">
-            <div className="preview-window-header">
-              <div className="window-dots">
-                <span className="window-dot red" />
-                <span className="window-dot yellow" />
-                <span className="window-dot green" />
               </div>
-              <div className="preview-tabs">
-                <button
-                  onClick={() => setPreviewTab('resume')}
-                  className={`preview-tab-btn ${previewTab === 'resume' ? 'active' : ''}`}
-                >
-                  <FileText size={13} className="inline mr-1" />
-                  ATS Resume Audit
-                </button>
-                <button
-                  onClick={() => setPreviewTab('interview')}
-                  className={`preview-tab-btn ${previewTab === 'interview' ? 'active' : ''}`}
-                >
-                  <MessageSquare size={13} className="inline mr-1" />
-                  STAR Mock Interview
-                </button>
-                <button
-                  onClick={() => setPreviewTab('jobs')}
-                  className={`preview-tab-btn ${previewTab === 'jobs' ? 'active' : ''}`}
-                >
-                  <Briefcase size={13} className="inline mr-1" />
-                  JD Match & Gaps
-                </button>
-              </div>
-              <div className="text-xs text-muted font-mono flex items-center gap-1.5 hidden-mobile">
-                <Terminal size={12} className="text-brand-blue" />
-                <span>ai-engine: active</span>
-              </div>
-            </div>
-
-            <div className="preview-body">
-              {previewTab === 'resume' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                  <div className="p-4 rounded-xl border border-brand-500/20 bg-brand-50 text-center">
-                    <span className="text-xs uppercase font-bold text-muted">ATS Health Score</span>
-                    <div className="text-4xl font-black text-brand-blue mt-1">92/100</div>
-                    <span className="badge badge-accent mt-2">Ready for Top Tier ATS</span>
-                  </div>
-                  <div className="md:col-span-2 space-y-3">
-                    <div className="p-3.5 rounded-lg border border-border bg-white shadow-xs">
-                      <div className="text-xs font-bold text-brand-orange flex items-center gap-1 mb-1">
-                        <Sparkles size={13} /> STAR Bullet Revision Engine
-                      </div>
-                      <div className="text-xs text-muted line-through">
-                        &quot;Worked on backend bugs and helped frontend team with schemas.&quot;
-                      </div>
-                      <div className="text-xs text-brand-navy font-semibold mt-1">
-                        &quot;Architected 14 PostgreSQL migrations and tuned indexing, cutting p99 query latency by 42% across 10k daily sessions.&quot;
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <span className="tag text-brand-navy font-bold">Python 95%</span>
-                      <span className="tag text-brand-navy font-bold">FastAPI 92%</span>
-                      <span className="tag text-brand-navy font-bold">PostgreSQL 89%</span>
-                      <span className="tag text-brand-navy font-bold">Docker 84%</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {previewTab === 'interview' && (
-                <div className="space-y-4">
-                  <div className="p-4 rounded-xl border border-border bg-white shadow-xs">
-                    <div className="text-xs font-bold text-brand-blue uppercase tracking-wider mb-1">
-                      System Design & Incident Response
-                    </div>
-                    <div className="text-base font-bold text-brand-navy">
-                      &quot;Describe a situation where a production deployment caused database locks. What steps did you take?&quot;
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                    <div className="p-3 rounded-lg border border-border bg-brand-50">
-                      <div className="text-[11px] text-muted font-bold">Situation</div>
-                      <div className="text-xl font-black text-brand-blue">94%</div>
-                    </div>
-                    <div className="p-3 rounded-lg border border-border bg-brand-50">
-                      <div className="text-[11px] text-muted font-bold">Task</div>
-                      <div className="text-xl font-black text-brand-blue">90%</div>
-                    </div>
-                    <div className="p-3 rounded-lg border border-border bg-brand-50">
-                      <div className="text-[11px] text-muted font-bold">Action</div>
-                      <div className="text-xl font-black text-brand-purple">96%</div>
-                    </div>
-                    <div className="p-3 rounded-lg border border-border bg-brand-50">
-                      <div className="text-[11px] text-muted font-bold">Result</div>
-                      <div className="text-xl font-black text-brand-orange">88%</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {previewTab === 'jobs' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                  <div className="p-4 rounded-xl border border-border bg-brand-50 text-left">
-                    <span className="badge badge-brand mb-1">94% Match Fit</span>
-                    <div className="font-bold text-base text-brand-navy">Full-Stack Engineer</div>
-                    <div className="text-xs text-muted">Remote • Freshers Eligible</div>
-                  </div>
-                  <div className="md:col-span-2 space-y-2 text-left">
-                    <div className="text-xs text-brand-navy font-bold">
-                      Matched Skills: Python, React, RESTful APIs, Git, Docker
-                    </div>
-                    <div className="text-xs text-amber-800 font-semibold p-2.5 rounded-lg border border-amber-200 bg-amber-50">
-                      ⚠️ Skill Gap: Docker Containerization • Free Roadmap step ready in 1 click
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Feature Showcase Grid ── */}
-      <section id="features" className="py-24 bg-white">
-        <div className="landing-container">
-          <div className="section-header text-center mb-16">
-            <span className="badge badge-brand mb-3">Complete Toolkit</span>
-            <h2 className="text-3xl font-black md:text-4xl text-brand-navy">Everything You Need to Get Hired</h2>
-            <p className="text-muted max-w-2xl mx-auto mt-4 text-base font-medium">
-              Stop guessing why your applications get rejected. CareerCraft gives you the exact tools top candidates use to stand out.
+      {/* ── Section: Why Choose Career Craft? (Template Bottom-Left Mockup) ── */}
+      <section id="features" className="py-20 bg-[#070A11] border-t border-b border-white/5 relative">
+        <div className="landing-container max-w-7xl mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="flex-1 space-y-8">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                  Why Choose Career Craft?
+                </h2>
+                <p className="text-gray-400 text-base mt-2">
+                  Smart analysis. Better opportunities.
+                </p>
+              </div>
+
+              {/* 4 Feature Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Card 1: ATS Friendly */}
+                <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <h3 className="font-bold text-base text-white mb-1.5">ATS Friendly</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Get your resume optimized for applicant tracking systems.
+                  </p>
+                </div>
+
+                {/* Card 2: Detailed Insights */}
+                <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                    <TrendingUp size={20} />
+                  </div>
+                  <h3 className="font-bold text-base text-white mb-1.5">Detailed Insights</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Understand your strengths and areas of improvement.
+                  </p>
+                </div>
+
+                {/* Card 3: Personalized Suggestions */}
+                <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                    <Sparkles size={20} />
+                  </div>
+                  <h3 className="font-bold text-base text-white mb-1.5">Personalized Suggestions</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    AI-driven recommendations to boost your score.
+                  </p>
+                </div>
+
+                {/* Card 4: Career Growth */}
+                <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                    <Award size={20} />
+                  </div>
+                  <h3 className="font-bold text-base text-white mb-1.5">Career Growth</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Land more interviews and achieve your dream job.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Faceted 3D Glowing Crystal Prism Accent */}
+            <div className="w-full lg:w-96 flex items-center justify-center">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[#F59E0B]/20 rounded-full blur-3xl pointer-events-none" />
+                <img
+                  src="/images/gold_prism.jpg"
+                  alt="Career Craft Geometric Prism"
+                  className="w-72 h-72 object-cover rounded-3xl border border-[#F59E0B]/30 shadow-2xl shadow-[#F59E0B]/20 group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section: Fast Upload Area (Template Center-Bottom Mockup) ── */}
+      <section id="ats-preview" className="py-20 relative">
+        <div className="landing-container max-w-3xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <CareerCraftLogo size={28} showText={true} />
+          </div>
+
+          {/* Golden Dashed Upload Box */}
+          <div
+            onClick={() => navigate('/resume')}
+            className="gold-upload-zone group"
+          >
+            <div className="gold-cloud-icon-wrap group-hover:scale-110 transition-transform">
+              <UploadCloud size={32} />
+            </div>
+
+            <h3 className="text-xl font-bold text-white mb-2">
+              Drag & Drop Your Resume Here
+            </h3>
+            <p className="text-xs text-gray-400 mb-5">or</p>
+
+            <div>
+              <Link
+                to="/resume"
+                className="btn btn-primary px-8 py-2.5 text-sm font-extrabold shadow-lg inline-block"
+              >
+                Choose File
+              </Link>
+            </div>
+
+            <p className="text-xs text-gray-400 mt-5">
+              Supported formats: PDF, DOCX (Max 5MB)
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-indigo-500/10 text-brand-blue">
-                <FileText size={26} />
+          {/* 3-Step Breadcrumbs Stepper */}
+          <div className="breadcrumb-stepper">
+            <div className="stepper-item active">
+              <div className="stepper-circle">1</div>
+              <span>Upload</span>
+            </div>
+            <div className="stepper-divider" />
+            <div className="stepper-item">
+              <div className="stepper-circle">2</div>
+              <span>Analyze</span>
+            </div>
+            <div className="stepper-divider" />
+            <div className="stepper-item">
+              <div className="stepper-circle">3</div>
+              <span>Get Results</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section: Turn Your Resume Into Opportunities (Template Bottom-Left) ── */}
+      <section className="py-20 bg-[#070A11] border-t border-white/5 relative overflow-hidden">
+        <div className="landing-container max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="inline-block px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300">
+                Your Career. Our Priority.
               </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">AI Resume Diagnostic & ATS Score</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Extracts skills, work experience, metrics, and bullet point structure. Evaluates keyword density and gives an objective score out of 100 with actionable bullet revisions.
+
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+                Turn Your Resume<br />
+                Into Opportunities
+              </h2>
+
+              <p className="text-gray-300 text-sm sm:text-base max-w-lg leading-relaxed">
+                Join thousands of job seekers who are already building better careers with Career Craft.
               </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">PDF & DOCX Support</span>
-                <span className="tag">JD Keyword Matching</span>
+
+              <div className="pt-2">
+                <Link
+                  to="/register"
+                  className="btn btn-primary px-8 py-3 text-sm font-extrabold shadow-xl inline-flex items-center gap-2"
+                >
+                  <span>Get Started</span>
+                  <ArrowRight size={16} />
+                </Link>
               </div>
             </div>
 
-            {/* Feature 2 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-emerald-500/10 text-emerald-500">
-                <MessageSquare size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">Interactive AI Mock Interviewer</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Realistic technical and behavioral interview sessions with contextual role-based questions. Receive STAR method breakdown (Situation, Task, Action, Result) for every answer.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">STAR Framework</span>
-                <span className="tag">Timed Sessions</span>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-blue-500/10 text-brand-cyan">
-                <Briefcase size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">Curated Jobs & Internship Hub</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Aggregates real-time remote tech jobs and direct 1-click searches across LinkedIn, Internshala, Indeed, and Naukri with experience filters tailored for freshers.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">Arbeitnow API</span>
-                <span className="tag">Saved Jobs Tracker</span>
-              </div>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-purple-500/10 text-brand-purple">
-                <Map size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">Personalized Skill Roadmaps</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Generate step-by-step learning paths based on your current resume skillset and target dream role. Highlights gap skills and provides recommended free resources.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">Phase-by-Phase</span>
-                <span className="tag">Gap Analysis</span>
-              </div>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-amber-500/10 text-brand-orange">
-                <FolderKanban size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">Portfolio Project Recommendations</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Stop building generic to-do apps. Discover high-impact, resume-worthy projects with architectural milestones, tech stack choices, and interview talking points.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">System Design</span>
-                <span className="tag">Architecture Guides</span>
-              </div>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="card feature-card hover-lift">
-              <div className="feature-icon bg-blue-500/10 text-brand-blue">
-                <LinkedInIcon size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-brand-navy mb-2">LinkedIn Profile Optimizer</h3>
-              <p className="text-sm text-secondary leading-relaxed mb-4 flex-1">
-                Analyze your headline, About section, and experience bullet points. Generates magnetic headline options and recruiter-friendly keywords to skyrocket profile views.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="tag">Headline Generator</span>
-                <span className="tag">Recruiter Hooks</span>
+            {/* Right Workspace Image with Golden Script Quote */}
+            <div className="lg:col-span-6 relative">
+              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl group">
+                <img
+                  src="/images/workspace_gold.jpg"
+                  alt="Modern Tech Workspace"
+                  className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-8">
+                  <div className="text-right ml-auto">
+                    <p className="text-2xl sm:text-3xl font-serif italic text-[#FFE071] tracking-wide drop-shadow-md">
+                      Better Resume,<br />
+                      Bigger Opportunities
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── How It Works Section ── */}
-      <section id="how-it-works" className="py-24 bg-primary">
-        <div className="landing-container">
-          <div className="section-header text-center mb-16">
-            <span className="badge badge-brand mb-3">The Blueprint</span>
-            <h2 className="text-3xl font-black md:text-4xl text-brand-navy">From Student to Job-Ready in 4 Steps</h2>
+      {/* ── Comprehensive Tools Showcase ── */}
+      <section id="about" className="py-20">
+        <div className="landing-container max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="badge badge-brand mb-2">Built For Ambitious Students</span>
+            <h2 className="text-3xl font-black text-white">Full-Stack Career Acceleration</h2>
+            <p className="text-sm text-gray-400 mt-2">
+              Everything integrated into a single unified cockpit with zero locked features.
+            </p>
           </div>
 
-          <div className="steps-container grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="step-card">
-              <div className="step-number">01</div>
-              <h4 className="text-lg font-bold mb-2 text-brand-navy">Upload Resume</h4>
-              <p className="text-secondary text-sm">
-                Drop your PDF or DOCX file to get an immediate ATS health check and keyword audit.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                <MessageSquare size={20} />
+              </div>
+              <h3 className="font-bold text-lg text-white mb-2">STAR Mock Interview Coach</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                AI evaluates your answers across Situation, Task, Action, and Result rubrics with bullet-point feedback for high-stress technical rounds.
               </p>
+              <Link to="/interview" className="text-xs font-bold text-[#FFB800] hover:underline flex items-center gap-1">
+                <span>Practice Interview</span>
+                <ArrowRight size={13} />
+              </Link>
             </div>
-            <div className="step-card">
-              <div className="step-number">02</div>
-              <h4 className="text-lg font-bold mb-2 text-brand-navy">Match With Job Description</h4>
-              <p className="text-secondary text-sm">
-                Paste any JD to see missing critical skills and tailored bullet improvements.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">03</div>
-              <h4 className="text-lg font-bold mb-2 text-brand-navy">Drill Mock Interviews</h4>
-              <p className="text-secondary text-sm">
-                Answer realistic questions and learn exactly how to refine your answers with the STAR technique.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">04</div>
-              <h4 className="text-lg font-bold mb-2 text-brand-navy">Apply & Track</h4>
-              <p className="text-secondary text-sm">
-                Explore curated opportunities, bookmark top jobs, and track your readiness score as it grows.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Student Philosophy Callout ── */}
-      <section id="philosophy" className="py-20 bg-brand-navy text-white relative overflow-hidden">
-        <div className="landing-container text-center relative z-10">
-          <Award size={44} className="mx-auto mb-4 text-brand-cyan" />
-          <h2 className="text-3xl md:text-4xl font-black mb-4">Built by Students, for Students</h2>
-          <p className="text-slate-200 max-w-2xl mx-auto mb-8 text-lg">
-            Commercial career tools charge steep monthly subscriptions. CareerCraft was created on the conviction that every student deserves world-class career guidance without paying a single rupee.
-          </p>
-          <div className="inline-flex gap-4">
-            <Link to="/register" className="btn btn-orange btn-lg shadow-lg font-bold">
-              Start Free Today
-            </Link>
+            <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                <Briefcase size={20} />
+              </div>
+              <h3 className="font-bold text-lg text-white mb-2">Remote Tech Job Aggregator</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Aggregates active listings from top job boards with 1-click keyword search and JD match scoring based directly on your resume.
+              </p>
+              <Link to="/jobs" className="text-xs font-bold text-[#FFB800] hover:underline flex items-center gap-1">
+                <span>Explore Jobs</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="card p-6 bg-[#0D1018] border border-white/10 rounded-2xl hover:border-[#F59E0B]/50 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/12 text-[#FFB800] flex items-center justify-center mb-4">
+                <Map size={20} />
+              </div>
+              <h3 className="font-bold text-lg text-white mb-2">Skill Gap & Learning Roadmaps</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Pinpoints exact tech gaps between your resume and market demand, generating clear step-by-step milestone learning roadmaps.
+              </p>
+              <Link to="/roadmap" className="text-xs font-bold text-[#FFB800] hover:underline flex items-center gap-1">
+                <span>View Roadmaps</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="landing-footer py-12 border-t border-border bg-white">
-        <div className="landing-container flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="py-12 border-t border-white/10 bg-[#05070B]">
+        <div className="landing-container max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="CareerCraft Logo" className="brand-logo-img" style={{ width: 36, height: 36 }} />
-            <span className="font-bold text-lg text-brand-navy">CareerCraft</span>
+            <CareerCraftLogo size={28} showText={true} />
           </div>
-          <p className="text-muted text-sm text-center">
-            &copy; {new Date().getFullYear()} CareerCraft. Build Your Skills. Craft Your Career. Crack Your Dream Job.
+          <p className="text-xs text-gray-500 text-center">
+            &copy; {new Date().getFullYear()} CAREER CRAFT. All rights reserved. Craft Your Resume. Beat the ATS. Build Your Career.
           </p>
-          <div className="flex gap-4 text-sm font-semibold text-secondary">
-            <Link to="/login" className="hover:text-brand-blue">Sign In</Link>
-            <Link to="/register" className="hover:text-brand-blue">Register</Link>
+          <div className="flex gap-5 text-xs font-semibold text-gray-400">
+            <Link to="/login" className="hover:text-[#FFB800] transition-colors">Sign In</Link>
+            <Link to="/register" className="hover:text-[#FFB800] transition-colors">Register</Link>
+            <Link to="/resume" className="hover:text-[#FFB800] transition-colors">Resume Analyzer</Link>
           </div>
         </div>
       </footer>

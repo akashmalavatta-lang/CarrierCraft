@@ -6,6 +6,7 @@ import {
   Zap, Mail, Lock, User, Target, Briefcase, ArrowRight,
   CheckCircle2, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles
 } from 'lucide-react';
+import { CareerCraftLogo } from '../../components/common/Icons';
 
 const ROLES = [
   'Software Engineer',
@@ -91,10 +92,7 @@ export default function RegisterPage() {
         {/* Left Side: Brand & Benefits */}
         <div className="auth-hero">
           <Link to="/" className="auth-brand" title="Return to home">
-            <img src="/logo.png" alt="CareerCraft Logo" className="auth-logo-img" />
-            <span className="auth-logo-title">
-              Career<span className="text-brand-blue">Craft</span>
-            </span>
+            <CareerCraftLogo size={36} showText={true} />
           </Link>
 
 
