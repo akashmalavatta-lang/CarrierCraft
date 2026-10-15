@@ -38,16 +38,14 @@ export default function AppLayout() {
     ? user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     : 'U';
 
-  const showLabels = !collapsed || mobileOpen;
-
   return (
     <div className="app-layout">
-      {/* Mobile backdrop */}
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="sidebar-backdrop"
+          className="fixed inset-0 bg-black/30 z-90"
+          style={{ zIndex: 99 }}
           onClick={() => setMobileOpen(false)}
-          aria-label="Close navigation overlay"
         />
       )}
 
@@ -56,50 +54,42 @@ export default function AppLayout() {
         {/* Logo */}
         <div className="sidebar-logo">
           <img src="/logo.png" alt="CareerCraft Logo" className="sidebar-logo-img" />
-          {showLabels && (
+          {!collapsed && (
             <span className="sidebar-logo-text">
               Career<span>Craft</span>
             </span>
           )}
-          {mobileOpen && (
-            <button
-              className="btn btn-ghost btn-icon ml-auto text-muted hover:text-white"
-              onClick={() => setMobileOpen(false)}
-              aria-label="Close menu"
-            >
-              <X size={18} />
-            </button>
-          )}
         </div>
+
 
         {/* Nav */}
         <nav className="sidebar-nav">
-          {showLabels && <div className="sidebar-section-title">Main</div>}
+          {!collapsed && <div className="sidebar-section-title">Main</div>}
           {NAV_ITEMS.map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}
               to={path}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setMobileOpen(false)}
-              title={collapsed && !mobileOpen ? label : undefined}
+              title={collapsed ? label : undefined}
             >
               <Icon className="nav-icon" size={20} />
-              {showLabels && <span className="nav-label">{label}</span>}
+              {!collapsed && <span>{label}</span>}
             </NavLink>
           ))}
 
           <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-            {showLabels && <div className="sidebar-section-title">Account</div>}
+            {!collapsed && <div className="sidebar-section-title">Account</div>}
             {BOTTOM_ITEMS.map(({ label, icon: Icon, path }) => (
               <NavLink
                 key={path}
                 to={path}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => setMobileOpen(false)}
-                title={collapsed && !mobileOpen ? label : undefined}
+                title={collapsed ? label : undefined}
               >
                 <Icon className="nav-icon" size={20} />
-                {showLabels && <span className="nav-label">{label}</span>}
+                {!collapsed && <span>{label}</span>}
               </NavLink>
             ))}
           </div>
@@ -107,12 +97,12 @@ export default function AppLayout() {
 
         {/* Bottom */}
         <div className="sidebar-bottom">
-          {showLabels && (
+          {!collapsed && (
             <div className="flex items-center gap-3 mb-3 p-2">
               <div className="user-avatar" style={{ width: 32, height: 32, fontSize: '0.75rem' }}>
                 {initials}
               </div>
-              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="text-sm font-semibold truncate">{user?.name}</div>
                 <div className="text-xs text-muted truncate">{user?.experience_level || 'Fresher'}</div>
               </div>
@@ -121,17 +111,18 @@ export default function AppLayout() {
           <button
             className="nav-item w-full"
             onClick={handleLogout}
-            title={collapsed && !mobileOpen ? 'Logout' : undefined}
+            title={collapsed ? 'Logout' : undefined}
           >
             <LogOut size={18} className="nav-icon text-danger" />
-            {showLabels && <span style={{ color: 'var(--rose-500)' }}>Logout</span>}
+            {!collapsed && <span style={{ color: 'var(--rose-500)' }}>Logout</span>}
           </button>
 
           {/* Collapse toggle — desktop only */}
           <button
-            className="nav-item w-full hidden-mobile"
+            className="nav-item w-full"
             onClick={() => setCollapsed(c => !c)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            style={{ display: 'none' }}
             id="sidebar-toggle"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -148,17 +139,14 @@ export default function AppLayout() {
             <button
               className="btn btn-ghost btn-icon"
               onClick={() => setMobileOpen(o => !o)}
+              style={{ display: 'none' }}
               id="mobile-menu-btn"
-              aria-label="Open navigation menu"
             >
               <Menu size={20} />
             </button>
             <button
-              className="btn btn-ghost btn-icon hidden-mobile"
+              className="btn btn-ghost btn-icon"
               onClick={() => setCollapsed(c => !c)}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              id="desktop-collapse-btn"
             >
               {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             </button>
@@ -183,10 +171,23 @@ export default function AppLayout() {
         </header>
 
         {/* Page content */}
-        <main className="main-viewport">
+        <main>
           <Outlet />
         </main>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          #mobile-menu-btn { display: flex !important; }
+          .sidebar { transform: translateX(-100%); }
+          .sidebar.mobile-open { transform: translateX(0); box-shadow: var(--shadow-xl); }
+          .main-content { margin-left: 0 !important; }
+          .hidden-mobile { display: none; }
+        }
+        @media (min-width: 769px) {
+          #sidebar-toggle { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
