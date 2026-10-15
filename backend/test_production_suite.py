@@ -36,15 +36,19 @@ class ProductionTestSuite(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Configure test application with isolated test database."""
+        os.environ["DATABASE_URL"] = "sqlite:///:memory:"
         cls.app = create_app()
         cls.app.config.update({
             "TESTING": True,
-            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "JWT_SECRET_KEY": "test-jwt-secret-verification-key",
             "UPLOAD_FOLDER": os.path.join(cls.app.instance_path, "test_uploads"),
         })
         os.makedirs(cls.app.config["UPLOAD_FOLDER"], exist_ok=True)
         cls.client = cls.app.test_client()
+
+    @classmethod
+    def tearDownClass(cls):
+        os.environ.pop("DATABASE_URL", None)
 
     def setUp(self):
         """Reset database tables before each test."""

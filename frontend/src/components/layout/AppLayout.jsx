@@ -41,7 +41,7 @@ export default function AppLayout() {
   const isCollapsed = collapsed && !mobileOpen;
 
   return (
-    <div className="app-layout">
+    <div className="app-layout tech-grid-bg">
       {/* Mobile overlay backdrop */}
       {mobileOpen && (
         <div

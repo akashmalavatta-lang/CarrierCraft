@@ -40,7 +40,7 @@ def create_app(config_name: str = None) -> Flask:
     os.makedirs(canonical_instance, exist_ok=True)
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
-        sqlite_file = os.path.join(canonical_instance, "cc_careercraft.db")
+        sqlite_file = os.path.join(canonical_instance, "cc_careercraft.db").replace("\\", "/")
         db_url = f"sqlite:///{sqlite_file}"
     elif db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
