@@ -35,10 +35,12 @@ def create_app(config_name: str = None) -> Flask:
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
 
     # Database configuration & path safety
-    os.makedirs(app.instance_path, exist_ok=True)
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    canonical_instance = os.path.join(backend_dir, "instance")
+    os.makedirs(canonical_instance, exist_ok=True)
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
-        sqlite_file = os.path.join(app.instance_path, "cc_careercraft.db")
+        sqlite_file = os.path.join(canonical_instance, "cc_careercraft.db")
         db_url = f"sqlite:///{sqlite_file}"
     elif db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -63,7 +65,7 @@ def create_app(config_name: str = None) -> Flask:
         }
 
     # File uploads
-    upload_folder = os.path.join(app.instance_path, "uploads")
+    upload_folder = os.path.join(canonical_instance, "uploads")
     os.makedirs(upload_folder, exist_ok=True)
     app.config["UPLOAD_FOLDER"] = upload_folder
     app.config["MAX_CONTENT_LENGTH"] = int(
@@ -165,14 +167,14 @@ def create_app(config_name: str = None) -> Flask:
     return app
 
 
-def init_db(app: Flask):
+def init_db(flask_app: Flask):
     """
     Safely initialize database tables and seed initial demo user without race conditions.
     """
-    with app.app_context():
+    with flask_app.app_context():
         try:
             # Ensure models are imported into SQLAlchemy metadata before create_all
-            import app.models  # noqa: F401
+            from app import models as _app_models  # noqa: F401
             db.create_all()
             from app.models import User
             demo_email = "demo@careercraft.io"
@@ -187,8 +189,8 @@ def init_db(app: Flask):
                 )
                 db.session.add(demo_user)
                 db.session.commit()
-                app.logger.info("Demo user initialized successfully.")
+                flask_app.logger.info("Demo user initialized successfully.")
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Database initialization error: {e}")
+            flask_app.logger.error(f"Database initialization error: {e}")
 

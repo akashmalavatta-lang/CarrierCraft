@@ -4,7 +4,15 @@
  */
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Automatic endpoint resolution:
+// 1. Explicit VITE_API_URL if configured in deployment
+// 2. In local dev (port 5173), direct connect to backend port 5000 with proxy fallback
+// 3. In production, relative '/api' route handled by server
+const API_BASE = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.port === '5173'
+    ? 'http://127.0.0.1:5000/api'
+    : '/api'
+);
 
 const api = axios.create({
   baseURL: API_BASE,
