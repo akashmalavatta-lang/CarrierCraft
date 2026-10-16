@@ -130,6 +130,26 @@ body {
   overflow-x: hidden;
 }
 
+/* Custom Sleek Scrollbar matching dark obsidian & gold aesthetic */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(245, 191, 69, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 191, 69, 0.5);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 191, 69, 0.25) transparent;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
   font-weight: 800;

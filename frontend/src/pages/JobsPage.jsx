@@ -6,7 +6,8 @@ import {
   Briefcase, Search, Bookmark, BookmarkCheck, ExternalLink,
   MapPin, Building, Globe, Sparkles, Filter, Trash2,
   TrendingUp, Award, CheckCircle2, ChevronRight, RotateCcw,
-  Clock, DollarSign, Users, ChevronLeft, Layers, PieChart, BarChart3, Target
+  Clock, DollarSign, Users, ChevronLeft, Layers, PieChart, BarChart3, Target,
+  FileText
 } from 'lucide-react';
 
 const SKILLS_IN_DEMAND = [

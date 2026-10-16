@@ -22,6 +22,7 @@ from app.ml.extractor import (
     extract_experience, extract_projects, extract_certifications,
     extract_achievements, SECTION_PATTERNS,
 )
+from app.ml.resume_classifier_model import evaluate_resume_ml
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +150,7 @@ def analyze_resume(text: str) -> Dict[str, Any]:
         "spelling_and_grammar": _detect_grammar_and_spelling(text),
         "industry_requirements": _analyze_industry_requirements(skills_data, text),
         "recommended_projects": _recommend_projects(skills_data, text),
+        "ml_insights": evaluate_resume_ml(text),
     }
 
 

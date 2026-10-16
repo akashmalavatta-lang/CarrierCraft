@@ -6,7 +6,8 @@ import {
   MessageSquare, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight,
   Clock, Award, Sparkles, Send, Check, RefreshCw, Trophy, Flag,
   Volume2, VolumeX, Mic, MicOff, Monitor, MonitorOff, Camera, CameraOff,
-  Radio, HelpCircle, ShieldCheck, Play, Pause, ChevronDown, ChevronUp
+  Radio, HelpCircle, ShieldCheck, Play, Pause, ChevronDown, ChevronUp,
+  ListOrdered, Settings
 } from 'lucide-react';
 
 export default function InterviewSessionPage() {

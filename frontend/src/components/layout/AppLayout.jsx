@@ -156,32 +156,15 @@ export default function AppLayout() {
             </NavLink>
           ))}
 
-          {/* Tools Section (Matching Reference Designs) */}
-          <div className="pt-2">
-            {!isCollapsed && <div className="sidebar-section-title">Tools</div>}
-            {TOOLS_ITEMS.map(({ label, icon: Icon, path }) => (
-              <NavLink
-                key={label}
-                to={path}
-                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => setMobileOpen(false)}
-                title={isCollapsed ? label : undefined}
-              >
-                <Icon className="nav-icon text-[#A8B3C2]" size={17} />
-                {!isCollapsed && <span>{label}</span>}
-              </NavLink>
-            ))}
-          </div>
-
-          {/* Upgrade to Pro Card (Matching Reference Designs) */}
+          {/* Upgrade to Pro Card (Matching Reference Designs media_1792187740448) */}
           {!isCollapsed && (
-            <div className="sidebar-pro-card mt-auto">
+            <div className="sidebar-pro-card mt-auto mb-2">
               <div className="flex items-center gap-2 mb-1.5 text-[#F5BF45] font-bold text-xs">
                 <Crown size={15} className="text-[#F5BF45]" />
                 <span>Upgrade to Pro</span>
               </div>
               <p className="text-[11px] text-[#A8B3C2] mb-3 leading-relaxed">
-                Unlock premium job insights, personalized recommendations, and advanced practice sessions.
+                Get advanced analysis, more checks and personalized suggestions.
               </p>
               <button
                 className="btn btn-primary w-full text-xs py-2 font-bold shadow-md"
@@ -193,49 +176,66 @@ export default function AppLayout() {
           )}
         </nav>
 
-        {/* Sidebar Bottom: User & Logout */}
+        {/* Sidebar Bottom: User & Logout (Matching Reference Designs) */}
         <div className="sidebar-bottom">
-          {!isCollapsed && (
-            <div className="flex items-center gap-2.5 px-2 py-1.5">
+          {!isCollapsed ? (
+            <>
               <div
-                className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#D99B22] to-[#F5BF45] text-[#05080D] font-extrabold text-xs flex items-center justify-center flex-shrink-0 cursor-pointer"
+                className="flex items-center gap-2.5 px-2 py-1 cursor-pointer rounded-lg hover:bg-white/5 transition"
                 onClick={() => navigate('/profile')}
-                title="Profile"
+                title="View Profile"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D99B22] to-[#F5BF45] text-[#05080D] font-extrabold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
+                  {initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-[#F5F7FA] truncate">{displayName}</div>
+                  <div className="text-[11px] text-[#A8B3C2] truncate capitalize">{displayRole}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  className="flex items-center gap-1.5 px-2 py-1 text-rose-400 hover:text-rose-300 text-xs font-semibold transition"
+                  onClick={handleLogout}
+                  title="Logout"
+                >
+                  <LogOut size={14} />
+                  <span>Logout</span>
+                </button>
+
+                <button
+                  className="text-[11px] text-[#A8B3C2] hover:text-[#F5BF45] p-1"
+                  onClick={() => setCollapsed(c => !c)}
+                  title="Collapse sidebar"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-1">
+              <div
+                className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D99B22] to-[#F5BF45] text-[#05080D] font-extrabold text-xs flex items-center justify-center cursor-pointer"
+                onClick={() => navigate('/profile')}
+                title={displayName}
               >
                 {initials}
               </div>
-              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                <div className="text-xs font-semibold text-[#F5F7FA] truncate">{displayName}</div>
-                <div className="text-[11px] text-[#A8B3C2] truncate capitalize">{displayRole}</div>
-              </div>
-            </div>
-          )}
-
-          <button
-            className="nav-item w-full text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
-            onClick={handleLogout}
-            title={isCollapsed ? 'Logout' : undefined}
-          >
-            <LogOut size={16} className="nav-icon text-rose-400" />
-            {!isCollapsed && <span className="text-xs font-semibold">Logout</span>}
-          </button>
-
-          {/* Desktop Sidebar Collapse Toggle */}
-          <button
-            className="nav-item w-full hidden-mobile text-[#A8B3C2]"
-            onClick={() => setCollapsed(c => !c)}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            id="sidebar-toggle"
-          >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            {!collapsed && <span className="text-xs">Collapse</span>}
-          </button>
-
-          {!isCollapsed && (
-            <div className="px-3 pt-2 pb-1 flex items-center justify-center gap-3 text-[10px] text-[#6B7A90]">
-              <Link to="/privacy" className="hover:text-[#F5BF45] transition">Privacy</Link>
-              <span>•</span>
-              <Link to="/terms" className="hover:text-[#F5BF45] transition">Terms</Link>
+              <button
+                className="p-1 text-rose-400 hover:text-rose-300"
+                onClick={handleLogout}
+                title="Logout"
+              >
+                <LogOut size={16} />
+              </button>
+              <button
+                className="p-1 text-[#A8B3C2] hover:text-[#F5BF45]"
+                onClick={() => setCollapsed(c => !c)}
+                title="Expand sidebar"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           )}
         </div>

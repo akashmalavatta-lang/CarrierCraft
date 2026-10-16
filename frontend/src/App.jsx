@@ -35,17 +35,35 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function PublicRoute({ children }) {
+function RootRoute() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#05080D] flex flex-col items-center justify-center gap-3 text-center">
+        <div className="spinner spinner-lg text-[#F5BF45]" />
+        <p className="text-xs text-[#A8B3C2] font-semibold tracking-wide">Initializing CareerCraft Cockpit...</p>
+      </div>
+    );
+  }
+  if (!user) return <LoginPage />;
+  return <Navigate to="/dashboard" replace />;
+}
+
+function AuthRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      {/* Entry Route: Login Page First */}
+      <Route path="/" element={<RootRoute />} />
+      <Route path="/landing" element={<LandingPage />} />
+      <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+      <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsPage />} />
 

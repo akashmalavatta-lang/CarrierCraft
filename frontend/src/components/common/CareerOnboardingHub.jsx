@@ -21,9 +21,9 @@ export default function CareerOnboardingHub({ onComplete }) {
   const [loading, setLoading] = useState(false);
 
   // Step 1: LinkedIn State
-  const [linkedinUrl, setLinkedinUrl] = useState('www.linkedin.com/in/akash-malavatta');
-  const [targetRole, setTargetRole] = useState(user?.target_role || 'AI / Data Science Engineer');
-  const [headline, setHeadline] = useState('B.Tech AI & Data Science Student | Python | Data Analysis | Building Projects');
+  const [linkedinUrl, setLinkedinUrl] = useState(user?.linkedin_url || 'https://www.linkedin.com/in/akash-malavatta');
+  const [targetRole, setTargetRole] = useState(user?.target_role || 'Software Engineer');
+  const [headline, setHeadline] = useState(user?.headline || 'B.Tech AI & Data Science Student | Python | Data Analysis | Building Projects');
   const [linkedinConnected, setLinkedinConnected] = useState(false);
   const [profileScore, setProfileScore] = useState(82);
 
@@ -47,6 +47,9 @@ export default function CareerOnboardingHub({ onComplete }) {
 
     try {
       setLoading(true);
+      if (updateUser) {
+        updateUser({ linkedin_url: linkedinUrl, target_role: targetRole, headline });
+      }
       const res = await linkedinAPI.analyze({
         target_role: targetRole,
         headline: headline,
@@ -60,6 +63,9 @@ export default function CareerOnboardingHub({ onComplete }) {
       setCurrentStep(2);
     } catch (err) {
       console.warn('LinkedIn sync note:', err.message);
+      if (updateUser) {
+        updateUser({ linkedin_url: linkedinUrl, target_role: targetRole, headline });
+      }
       setLinkedinConnected(true);
       toast.success('LinkedIn profile connected successfully!');
       setCurrentStep(2);
