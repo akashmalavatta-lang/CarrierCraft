@@ -219,6 +219,28 @@ export default function LoginPage() {
                   </>
                 )}
               </button>
+
+              {/* Instant 1-Click Demo Access */}
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    await login('demo@careercraft.io', 'Password123!');
+                    toast.success('Signed in as Akash Malavatta (Demo Account) 🚀');
+                    navigate('/dashboard');
+                  } catch {
+                    toast.error('Could not authenticate demo user');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="btn btn-secondary w-full mt-3 flex items-center justify-center gap-2 border-[#F5BF45]/40 text-[#F5BF45] hover:bg-[#F5BF45]/10 font-bold"
+              >
+                <Zap size={16} className="text-[#F5BF45]" />
+                <span>Instant 1-Click Demo Login</span>
+              </button>
             </form>
 
             <div className="auth-divider">
@@ -230,6 +252,7 @@ export default function LoginPage() {
                 Create Free Student Account
               </Link>
             </div>
+
           </div>
         </div>
       </div>

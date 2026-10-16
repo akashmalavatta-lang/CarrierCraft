@@ -8,8 +8,10 @@ import {
   CheckCircle, Plus, RefreshCw, Star, Flame, Sparkles
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import CareerOnboardingHub from '../components/common/CareerOnboardingHub';
 
 export default function DashboardPage() {
+
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +89,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Career Stack Setup & Feature Connector ── */}
+      <CareerOnboardingHub onComplete={fetchDashboard} />
+
       {/* 4 Key Metric Cards */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {/* Metric 1: Career Readiness */}
         <div className="metric-card">
