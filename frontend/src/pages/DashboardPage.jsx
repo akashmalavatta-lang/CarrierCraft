@@ -63,11 +63,11 @@ export default function DashboardPage() {
                 {user?.target_role || 'Software Engineer'}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              Welcome back, {user?.name?.split(' ')[0] || 'Friend'} 👋
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#F5F7FA]">
+              Welcome back, {user?.name || 'Akash'}
             </h1>
-            <p className="text-muted text-sm mt-1">
-              Here is your current job-readiness breakdown and priority action items.
+            <p className="text-xs md:text-sm text-[#A8B3C2] mt-1">
+              Your career progress, learning activity, and next steps in one place.
             </p>
           </div>
 
@@ -187,68 +187,100 @@ export default function DashboardPage() {
               <span>Recommended Next Steps</span>
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link to="/resume" className="quick-action-card group">
-                <div className="p-3 rounded-lg bg-indigo-500/10 text-brand-500 mb-3 w-fit group-hover:scale-110 transition-transform">
-                  <FileText size={22} />
+                <div className="p-2.5 rounded-lg bg-indigo-500/10 text-brand-500 mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <FileText size={20} />
                 </div>
-                <h4 className="font-bold text-base mb-1 group-hover:text-brand-400 transition-colors">
+                <h4 className="font-bold text-sm mb-1 group-hover:text-brand-400 transition-colors">
                   Resume ATS Scanner
                 </h4>
-                <p className="text-xs text-muted mb-3">
-                  Upload your resume to check keywords, format, bullet metrics, and get an instant score.
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Analyze keyword match, formatting, and ATS compatibility score.
                 </p>
-                <div className="text-xs font-semibold text-brand-400 flex items-center gap-1">
+                <div className="text-[11px] font-semibold text-brand-400 flex items-center gap-1">
                   <span>Open Scanner</span>
-                  <ArrowRight size={14} />
+                  <ArrowRight size={13} />
                 </div>
               </Link>
 
               <Link to="/interview" className="quick-action-card group">
-                <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-500 mb-3 w-fit group-hover:scale-110 transition-transform">
-                  <MessageSquare size={22} />
+                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-500 mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <MessageSquare size={20} />
                 </div>
-                <h4 className="font-bold text-base mb-1 group-hover:text-emerald-400 transition-colors">
+                <h4 className="font-bold text-sm mb-1 group-hover:text-emerald-400 transition-colors">
                   AI Mock Interview
                 </h4>
-                <p className="text-xs text-muted mb-3">
-                  Simulate technical & HR interviews with instant STAR framework feedback.
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Voice practice across HR, Technical, and STAR situational questions.
                 </p>
-                <div className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
-                  <span>Start Session</span>
-                  <ArrowRight size={14} />
-                </div>
-              </Link>
-
-              <Link to="/roadmap" className="quick-action-card group">
-                <div className="p-3 rounded-lg bg-purple-500/10 text-purple-500 mb-3 w-fit group-hover:scale-110 transition-transform">
-                  <Map size={22} />
-                </div>
-                <h4 className="font-bold text-base mb-1 group-hover:text-purple-400 transition-colors">
-                  Personalized Roadmap
-                </h4>
-                <p className="text-xs text-muted mb-3">
-                  Get a phased milestone plan bridging the gap between your resume and dream job.
-                </p>
-                <div className="text-xs font-semibold text-purple-400 flex items-center gap-1">
-                  <span>View Roadmap</span>
-                  <ArrowRight size={14} />
+                <div className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                  <span>Start Room</span>
+                  <ArrowRight size={13} />
                 </div>
               </Link>
 
               <Link to="/jobs" className="quick-action-card group">
-                <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500 mb-3 w-fit group-hover:scale-110 transition-transform">
-                  <Briefcase size={22} />
+                <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-500 mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <Briefcase size={20} />
                 </div>
-                <h4 className="font-bold text-base mb-1 group-hover:text-blue-400 transition-colors">
-                  Job & Internship Explorer
+                <h4 className="font-bold text-sm mb-1 group-hover:text-blue-400 transition-colors">
+                  Job Explorer
                 </h4>
-                <p className="text-xs text-muted mb-3">
-                  Browse fresh job listings and filtered direct searches across Indian portals.
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Browse matched openings, salary estimates, and portal shortcuts.
                 </p>
-                <div className="text-xs font-semibold text-blue-400 flex items-center gap-1">
-                  <span>Browse Jobs</span>
-                  <ArrowRight size={14} />
+                <div className="text-[11px] font-semibold text-blue-400 flex items-center gap-1">
+                  <span>Explore Jobs</span>
+                  <ArrowRight size={13} />
+                </div>
+              </Link>
+
+              <Link to="/roadmap" className="quick-action-card group">
+                <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500 mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <Map size={20} />
+                </div>
+                <h4 className="font-bold text-sm mb-1 group-hover:text-purple-400 transition-colors">
+                  Learning Roadmap
+                </h4>
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Step-by-step phased learning path tailored to your dream role.
+                </p>
+                <div className="text-[11px] font-semibold text-purple-400 flex items-center gap-1">
+                  <span>View Roadmap</span>
+                  <ArrowRight size={13} />
+                </div>
+              </Link>
+
+              <Link to="/projects" className="quick-action-card group">
+                <div className="p-2.5 rounded-lg bg-[#F5BF45]/15 text-[#F5BF45] mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <FolderKanban size={20} />
+                </div>
+                <h4 className="font-bold text-sm mb-1 group-hover:text-[#F5BF45] transition-colors">
+                  Project Builder
+                </h4>
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Build resume-worthy practical projects with step-by-step milestones.
+                </p>
+                <div className="text-[11px] font-semibold text-[#F5BF45] flex items-center gap-1">
+                  <span>Build Projects</span>
+                  <ArrowRight size={13} />
+                </div>
+              </Link>
+
+              <Link to="/linkedin" className="quick-action-card group">
+                <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400 mb-2 w-fit group-hover:scale-110 transition-transform">
+                  <Award size={20} />
+                </div>
+                <h4 className="font-bold text-sm mb-1 group-hover:text-sky-300 transition-colors">
+                  LinkedIn Optimizer
+                </h4>
+                <p className="text-[11px] text-muted mb-2.5 leading-relaxed">
+                  Audit headlines and about section for maximum recruiter visibility.
+                </p>
+                <div className="text-[11px] font-semibold text-sky-400 flex items-center gap-1">
+                  <span>Optimize Profile</span>
+                  <ArrowRight size={13} />
                 </div>
               </Link>
             </div>

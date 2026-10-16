@@ -459,68 +459,86 @@ export default function InterviewSessionPage() {
       )}
 
       {/* Top Bar Navigation */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-border">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-4 border-b border-[#253342]">
         <div className="flex items-center gap-3">
           <Link to="/interview" className="btn btn-ghost btn-sm">
             <ArrowLeft size={16} className="mr-1" />
             <span>All Interviews</span>
           </Link>
-          <div className="h-4 w-px bg-border" />
+          <div className="h-4 w-px bg-[#253342]" />
           <div>
-            <h1 className="text-lg font-bold truncate text-primary">
-              {interview?.title || 'Mock Interview Session'}
+            <h1 className="text-lg font-bold truncate text-[#F5F7FA] flex items-center gap-2">
+              <span>{interview?.title || 'Mock Interview Session'}</span>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-[#F5BF45]/15 text-[#F5BF45] border border-[#F5BF45]/30">
+                Beta
+              </span>
             </h1>
-            <div className="flex items-center gap-2 text-xs text-muted">
-              <span className="capitalize">{interview?.difficulty}</span>
+            <div className="flex items-center gap-2 text-xs text-[#A8B3C2]">
+              <span className="capitalize">{interview?.difficulty || 'Medium'}</span>
               <span>•</span>
-              <span className="capitalize">{interview?.interview_type}</span>
+              <span className="capitalize">{interview?.interview_type || 'Mixed'}</span>
             </div>
           </div>
         </div>
 
         {/* Action Controls: Voice, Camera, Screen Share & Finish */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Active timer */}
           {!isCompleted && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-mono">
-              <Clock size={14} className="text-brand-400" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#101A26] border border-[#253342] text-xs font-mono text-[#F5F7FA]">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               <span>{formatTimer(timerSeconds)}</span>
             </div>
           )}
+          <Link to="/interview" className="btn btn-outline btn-sm text-xs flex items-center gap-1.5">
+            <ListOrdered size={14} />
+            <span>Interview History</span>
+          </Link>
+        </div>
+      </div>
 
-          {/* Camera Practice Toggle */}
-          <button
-            onClick={toggleCamera}
-            className={`btn btn-sm ${isCameraActive ? 'btn-primary' : 'btn-outline'}`}
-            title={isCameraActive ? 'Turn off camera' : 'Turn on webcam self-practice preview'}
-          >
-            {isCameraActive ? <Camera size={14} className="mr-1.5 text-cyan-300" /> : <CameraOff size={14} className="mr-1.5" />}
-            <span className="hidden sm:inline">{isCameraActive ? 'Camera On' : 'Practice Camera'}</span>
-          </button>
+      {/* ── 5-Round Stage Tracker Bar (Matching Image 4) ──────────────────── */}
+      <div className="card p-3 mb-6 bg-[#0B121B] border border-[#253342] overflow-x-auto">
+        <div className="flex items-center justify-between min-w-[720px] gap-2 text-xs">
+          {[
+            { step: 1, name: 'Introduction', count: '2 questions' },
+            { step: 2, name: 'Technical Round', count: '5 questions' },
+            { step: 3, name: 'Problem Solving', count: '3 questions' },
+            { step: 4, name: 'Behavioral Round', count: '3 questions' },
+            { step: 5, name: 'HR Round', count: '3 questions' },
+          ].map((st, i) => {
+            const currentStageIdx = Math.min(4, Math.floor((currentIndex / Math.max(1, questions.length)) * 5));
+            const isCurrent = currentStageIdx === i;
+            const isPassed = currentStageIdx > i;
 
-          {/* Screen Share Toggle */}
-          <button
-            onClick={toggleScreenShare}
-            className={`btn btn-sm ${isScreenSharing ? 'btn-orange' : 'btn-outline'}`}
-            title={isScreenSharing ? 'Stop sharing screen' : 'Share screen to demonstrate code or slides'}
-          >
-            {isScreenSharing ? <MonitorOff size={14} className="mr-1.5 text-amber-200" /> : <Monitor size={14} className="mr-1.5" />}
-            <span className="hidden sm:inline">{isScreenSharing ? 'Stop Screen' : 'Share Screen'}</span>
-          </button>
-
-          {/* Complete button */}
-          {!isCompleted ? (
-            <button
-              onClick={handleCompleteInterview}
-              className="btn btn-outline btn-sm text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
-              disabled={completing}
-            >
-              <Flag size={14} className="mr-1.5" />
-              <span>{completing ? 'Scoring...' : 'Finish Interview'}</span>
-            </button>
-          ) : (
-            <span className="badge badge-accent">Session Completed</span>
-          )}
+            return (
+              <div
+                key={st.step}
+                className={`flex-1 py-2 px-3 rounded-lg flex items-center gap-2.5 transition-all ${
+                  isCurrent
+                    ? 'bg-[#F5BF45]/15 border border-[#F5BF45] text-[#F5BF45]'
+                    : isPassed
+                    ? 'bg-[#101A26] border border-[#2DD4A0]/40 text-[#2DD4A0]'
+                    : 'bg-[#101A26] border border-[#253342] text-[#A8B3C2]'
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-full font-bold text-[10px] flex items-center justify-center flex-shrink-0 ${
+                  isCurrent
+                    ? 'bg-[#F5BF45] text-[#05080D]'
+                    : isPassed
+                    ? 'bg-[#2DD4A0] text-[#05080D]'
+                    : 'bg-[#253342] text-[#A8B3C2]'
+                }`}>
+                  {isPassed ? '✓' : st.step}
+                </span>
+                <div className="min-w-0">
+                  <div className={`font-bold truncate text-xs ${isCurrent ? 'text-[#F5F7FA]' : 'text-[#A8B3C2]'}`}>
+                    {st.name}
+                  </div>
+                  <div className="text-[10px] text-[#7E8D9F]">{st.count}</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -912,6 +930,114 @@ export default function InterviewSessionPage() {
               )}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Bottom 4 Device & Settings Panels (Matching Image 4) ──────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        {/* Card 1: Microphone */}
+        <div className="card p-4 bg-[#0B121B] border border-[#253342]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#F5F7FA]">
+              <Mic size={14} className="text-[#F5BF45]" />
+              <span>Microphone</span>
+            </div>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-[#2DD4A0]">
+              <span className="w-2 h-2 rounded-full bg-[#2DD4A0] animate-pulse" />
+              <span>{isListening ? 'Active' : 'Ready'}</span>
+            </span>
+          </div>
+          {/* Live audio level bars */}
+          <div className="flex items-center gap-1 h-6 my-2 bg-[#101A26] p-1.5 rounded border border-[#253342]">
+            {[40, 70, 90, 60, 85, 45, 100, 75, 50, 65, 80, 40].map((h, i) => (
+              <div
+                key={i}
+                className="flex-1 bg-[#F5BF45] rounded-full transition-all duration-150"
+                style={{ height: isListening ? `${h}%` : '20%', opacity: isListening ? 1 : 0.3 }}
+              />
+            ))}
+          </div>
+          <select className="w-full bg-[#101A26] border border-[#253342] rounded text-[11px] text-[#A8B3C2] p-1.5 mt-1 focus:outline-none focus:border-[#F5BF45]">
+            <option>Default - Built-in Microphone</option>
+            <option>External Headset Microphone</option>
+          </select>
+        </div>
+
+        {/* Card 2: Camera */}
+        <div className="card p-4 bg-[#0B121B] border border-[#253342]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#F5F7FA]">
+              <Camera size={14} className="text-[#F5BF45]" />
+              <span>Camera</span>
+            </div>
+            <span className={`flex items-center gap-1 text-[11px] font-semibold ${isCameraActive ? 'text-[#2DD4A0]' : 'text-[#A8B3C2]'}`}>
+              <span className={`w-2 h-2 rounded-full ${isCameraActive ? 'bg-[#2DD4A0] animate-pulse' : 'bg-slate-600'}`} />
+              <span>{isCameraActive ? 'Active' : 'Off'}</span>
+            </span>
+          </div>
+          <div className="my-2">
+            <button
+              onClick={toggleCamera}
+              className={`btn w-full text-xs py-1.5 ${isCameraActive ? 'btn-secondary text-[#2DD4A0]' : 'btn-outline text-[#F5BF45]'}`}
+            >
+              {isCameraActive ? 'Stop Camera' : 'Start Camera Preview'}
+            </button>
+          </div>
+          <select className="w-full bg-[#101A26] border border-[#253342] rounded text-[11px] text-[#A8B3C2] p-1.5 mt-1 focus:outline-none focus:border-[#F5BF45]">
+            <option>Integrated HD Webcam</option>
+            <option>Virtual Camera Source</option>
+          </select>
+        </div>
+
+        {/* Card 3: Screen Share */}
+        <div className="card p-4 bg-[#0B121B] border border-[#253342]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#F5F7FA]">
+              <Monitor size={14} className="text-[#F5BF45]" />
+              <span>Screen Share</span>
+            </div>
+            <span className={`flex items-center gap-1 text-[11px] font-semibold ${isScreenSharing ? 'text-[#2DD4A0]' : 'text-[#A8B3C2]'}`}>
+              <span className={`w-2 h-2 rounded-full ${isScreenSharing ? 'bg-[#2DD4A0] animate-pulse' : 'bg-rose-500'}`} />
+              <span>{isScreenSharing ? 'Sharing' : 'Not Sharing'}</span>
+            </span>
+          </div>
+          <div className="my-2">
+            <button
+              onClick={toggleScreenShare}
+              className={`btn w-full text-xs py-1.5 ${isScreenSharing ? 'btn-secondary text-rose-400' : 'btn-primary'}`}
+            >
+              {isScreenSharing ? 'Stop Sharing' : 'Start Sharing'}
+            </button>
+          </div>
+          <div className="text-[10px] text-[#A8B3C2] text-center mt-1">
+            100% Client-Side Privacy Guaranteed
+          </div>
+        </div>
+
+        {/* Card 4: Interview Settings */}
+        <div className="card p-4 bg-[#0B121B] border border-[#253342] text-xs">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#F5F7FA] mb-2">
+            <Settings size={14} className="text-[#F5BF45]" />
+            <span>Interview Settings</span>
+          </div>
+          <div className="space-y-1 text-[11px] text-[#A8B3C2]">
+            <div className="flex justify-between">
+              <span>Role:</span>
+              <span className="font-bold text-[#F5F7FA]">{interview?.target_role || 'Software Engineer'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Difficulty:</span>
+              <span className="capitalize font-bold text-[#F5F7FA]">{interview?.difficulty || 'Medium'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Duration:</span>
+              <span className="font-bold text-[#F5F7FA]">30 minutes</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Questions:</span>
+              <span className="font-bold text-[#F5F7FA]">{questions.length} (per session)</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
