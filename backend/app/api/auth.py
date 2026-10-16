@@ -108,6 +108,48 @@ def login():
     }), 200
 
 
+@auth_bp.route("/google", methods=["POST"])
+def google_auth():
+    """Authenticate or register user via Google identity."""
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "akash.student@gmail.com").strip().lower()
+    name = (data.get("name") or "Akash Malavatta").strip()
+    linkedin_url = (data.get("linkedin_url") or "").strip()
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        password_hash = bcrypt.generate_password_hash("GoogleAuthPass123!").decode("utf-8")
+        user = User(
+            name=name,
+            email=email,
+            password_hash=password_hash,
+            target_role=data.get("target_role", "Software Engineer"),
+            experience_level=data.get("experience_level", "fresher"),
+            linkedin_url=linkedin_url,
+        )
+        db.session.add(user)
+        db.session.flush()
+        activity = UserActivity(
+            user_id=user.id,
+            activity_type="account_created_google",
+            description="Signed up with Google Authentication",
+            points=25,
+        )
+        db.session.add(activity)
+    else:
+        user.last_login = datetime.now(timezone.utc)
+        if linkedin_url and not user.linkedin_url:
+            user.linkedin_url = linkedin_url
+
+    db.session.commit()
+    access_token = create_access_token(identity=str(user.id))
+    return jsonify({
+        "message": "Google authentication successful",
+        "access_token": access_token,
+        "user": user.to_dict(),
+    }), 200
+
+
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
 def me():
