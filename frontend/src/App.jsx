@@ -16,6 +16,8 @@ import RoadmapPage from './pages/RoadmapPage';
 import LinkedInPage from './pages/LinkedInPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProfilePage from './pages/ProfilePage';
+import PrivacyPolicyPage from './pages/legal/PrivacyPolicyPage';
+import TermsPage from './pages/legal/TermsPage';
 
 import './index.css';
 
@@ -45,6 +47,9 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+
 
       {/* Protected — within app layout */}
       <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

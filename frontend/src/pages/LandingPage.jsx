@@ -458,13 +458,16 @@ export default function LandingPage() {
           <p className="text-xs text-gray-500 text-center">
             &copy; {new Date().getFullYear()} CAREER CRAFT. All rights reserved. Craft Your Resume. Beat the ATS. Build Your Career.
           </p>
-          <div className="flex gap-5 text-xs font-semibold text-gray-400">
-            <Link to="/login" className="hover:text-[#FFB800] transition-colors">Sign In</Link>
-            <Link to="/register" className="hover:text-[#FFB800] transition-colors">Register</Link>
-            <Link to="/resume" className="hover:text-[#FFB800] transition-colors">Resume Analyzer</Link>
+          <div className="flex flex-wrap justify-center gap-5 text-xs font-semibold text-gray-400">
+            <Link to="/login" className="hover:text-[#F5BF45] transition-colors">Sign In</Link>
+            <Link to="/register" className="hover:text-[#F5BF45] transition-colors">Register</Link>
+            <Link to="/resume" className="hover:text-[#F5BF45] transition-colors">Resume Analyzer</Link>
+            <Link to="/privacy" className="hover:text-[#F5BF45] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#F5BF45] transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

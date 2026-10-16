@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, MessageSquare, Briefcase, Map,
   FolderKanban, User, LogOut, ChevronLeft, ChevronRight, Menu, X,
@@ -226,8 +226,17 @@ export default function AppLayout() {
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             {!collapsed && <span className="text-xs">Collapse</span>}
           </button>
+
+          {!isCollapsed && (
+            <div className="px-3 pt-2 pb-1 flex items-center justify-center gap-3 text-[10px] text-[#6B7A90]">
+              <Link to="/privacy" className="hover:text-[#F5BF45] transition">Privacy</Link>
+              <span>•</span>
+              <Link to="/terms" className="hover:text-[#F5BF45] transition">Terms</Link>
+            </div>
+          )}
         </div>
       </aside>
+
 
       {/* ── Main Content Area ─────────────────────────────────────────────── */}
       <div className={`main-content ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
