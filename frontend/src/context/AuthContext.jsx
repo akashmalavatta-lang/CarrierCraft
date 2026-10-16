@@ -10,20 +10,46 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session from localStorage on mount, or auto-initialize demo session
+  // Listen for unauthorized events to update auth state without hard page reload
   useEffect(() => {
+    const handleUnauthorized = () => {
+      setUser(null);
+    };
+    window.addEventListener('cc_auth_unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('cc_auth_unauthorized', handleUnauthorized);
+  }, []);
+
+  // Restore session from localStorage on mount, or auto-initialize valid demo session
+  useEffect(() => {
+    let isMounted = true;
+
     const initAuth = async () => {
       const token = localStorage.getItem('cc_token');
       const savedUser = localStorage.getItem('cc_user');
+
       if (token && savedUser) {
         try {
-          setUser(JSON.parse(savedUser));
-          setLoading(false);
-          return;
+          const parsed = JSON.parse(savedUser);
+          if (isMounted) setUser(parsed);
+
+          // Verify token in background
+          try {
+            const meRes = await authAPI.me();
+            if (meRes.data?.user && isMounted) {
+              setUser(meRes.data.user);
+              localStorage.setItem('cc_user', JSON.stringify(meRes.data.user));
+            }
+            if (isMounted) setLoading(false);
+            return;
+          } catch {
+            // Token expired or invalid, clear and obtain fresh demo token below
+            localStorage.removeItem('cc_token');
+            localStorage.removeItem('cc_user');
+          }
         } catch {}
       }
 
-      // Auto-authenticate with demo user so dashboard and tools are immediately workable
+      // Auto-authenticate with demo user so dashboard and all tools are immediately operable
       try {
         const res = await authAPI.login({
           email: 'demo@careercraft.io',
@@ -32,25 +58,40 @@ export function AuthProvider({ children }) {
         const { access_token, user: apiUser } = res.data;
         localStorage.setItem('cc_token', access_token);
         localStorage.setItem('cc_user', JSON.stringify(apiUser));
-        setUser(apiUser);
-      } catch (err) {
-        // Fallback default demo user
-        const defaultUser = {
-          id: 1,
-          name: 'Akash Malavatta',
-          email: 'demo@careercraft.io',
-          target_role: 'AI / Data Science Engineer',
-          experience_level: 'fresher',
-          location: 'Bengaluru, Karnataka, India'
-        };
-        setUser(defaultUser);
-        localStorage.setItem('cc_user', JSON.stringify(defaultUser));
+        if (isMounted) setUser(apiUser);
+      } catch {
+        // If login failed (e.g. fresh DB before seeding), register demo user
+        try {
+          const regRes = await authAPI.register({
+            name: 'Akash Malavatta',
+            email: 'demo@careercraft.io',
+            password: 'Password123!',
+            target_role: 'AI / Data Science Engineer',
+            experience_level: 'fresher'
+          });
+          const { access_token, user: regUser } = regRes.data;
+          localStorage.setItem('cc_token', access_token);
+          localStorage.setItem('cc_user', JSON.stringify(regUser));
+          if (isMounted) setUser(regUser);
+        } catch {
+          const defaultUser = {
+            id: 1,
+            name: 'Akash Malavatta',
+            email: 'demo@careercraft.io',
+            target_role: 'AI / Data Science Engineer',
+            experience_level: 'fresher',
+            location: 'Bengaluru, Karnataka, India'
+          };
+          if (isMounted) setUser(defaultUser);
+          localStorage.setItem('cc_user', JSON.stringify(defaultUser));
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     initAuth();
+    return () => { isMounted = false; };
   }, []);
 
 

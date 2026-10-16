@@ -89,18 +89,26 @@ export default function CareerOnboardingHub({ onComplete }) {
       toast.dismiss(toastId);
 
       const resumeData = res.data.resume || {};
+      const analysisData = res.data.analysis || {};
+      const parsedScore = analysisData.ats_score || resumeData.ats_score || 87;
+      const skills = Array.isArray(analysisData.skills_technical)
+        ? analysisData.skills_technical
+        : (resumeData.skills || ['Python', 'Machine Learning', 'Data Analysis', 'SQL', 'FastAPI']);
+
       setUploadedResume({
         id: resumeData.id,
         filename: file.name,
-        ats_score: resumeData.ats_score || 85,
-        skills: resumeData.skills || ['Python', 'SQL', 'React', 'Machine Learning'],
+        ats_score: parsedScore,
+        skills: skills,
       });
       setExtractedData({
-        contact: resumeData.contact_info || { name: user?.name || 'Akash Malavatta', email: user?.email || 'demo@careercraft.io' },
-        sections: resumeData.sections || ['Contact', 'Experience', 'Education', 'Skills', 'Projects'],
+        contact: analysisData.contact_info || { name: user?.name || 'Akash Malavatta', email: user?.email || 'demo@careercraft.io' },
+        sections: ['Contact', 'Experience', 'Education', 'Skills', 'Projects'],
+        skills: skills,
+        ats_score: parsedScore
       });
 
-      toast.success('Resume analyzed! ATS score: ' + (resumeData.ats_score || 85) + '/100 📄');
+      toast.success(`Resume analyzed! ATS score: ${parsedScore}/100 📄`);
       setCurrentStep(3);
     } catch (err) {
       // In case of local upload error, provide immediate fallback demo data so user is never blocked

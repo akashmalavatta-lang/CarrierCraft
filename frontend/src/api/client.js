@@ -8,11 +8,10 @@ import axios from 'axios';
 // 1. Explicit VITE_API_URL if configured in deployment
 // 2. In local dev (port 5173), direct connect to backend port 5000 with proxy fallback
 // 3. In production, relative '/api' route handled by server
-const API_BASE = import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && window.location.port === '5173'
-    ? 'http://127.0.0.1:5000/api'
-    : '/api'
-);
+// Centralized API client:
+// Vite dev server proxies '/api' to 'http://127.0.0.1:5000'
+// In production on Render, relative '/api' is routed to Flask
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -29,7 +28,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally — DO NOT redirect if the request is login or register
+// Handle 401 globally without triggering hard page reload loops
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -40,10 +39,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem('cc_token');
       localStorage.removeItem('cc_user');
-      const path = window.location.pathname;
-      if (path !== '/login' && path !== '/register' && path !== '/') {
-        window.location.href = '/login';
-      }
+      // Only dispatch an event or let React router handle unauthenticated state;
+      // avoid window.location.href reload loop
+      window.dispatchEvent(new CustomEvent('cc_auth_unauthorized'));
     }
     return Promise.reject(error);
   }

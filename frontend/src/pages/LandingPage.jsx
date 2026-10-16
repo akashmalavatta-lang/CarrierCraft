@@ -7,8 +7,10 @@ import {
 } from 'lucide-react';
 import { CareerCraftLogo, LinkedInIcon } from '../components/common/Icons';
 import AtsScoreGauge from '../components/common/AtsScoreGauge';
+import { useAuth } from '../context/AuthContext';
 
 export default function LandingPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('resume');
   const [showIntro, setShowIntro] = useState(() => {
@@ -54,20 +56,31 @@ export default function LandingPage() {
           </Link>
 
           <nav className="landing-nav-links">
-            <a href="#hero" className="landing-nav-link hover:text-[#FFB800] transition-colors">Home</a>
+            <Link to="/dashboard" className="landing-nav-link text-[#FFB800] font-bold transition-colors">Dashboard</Link>
             <Link to="/resume" className="landing-nav-link hover:text-[#FFB800] transition-colors">Resume Analyzer</Link>
-            <a href="#ats-preview" className="landing-nav-link hover:text-[#FFB800] transition-colors">ATS Score</a>
-            <a href="#features" className="landing-nav-link hover:text-[#FFB800] transition-colors">Features</a>
-            <a href="#about" className="landing-nav-link hover:text-[#FFB800] transition-colors">About</a>
+            <Link to="/interview" className="landing-nav-link hover:text-[#FFB800] transition-colors">Mock Interview</Link>
+            <Link to="/jobs" className="landing-nav-link hover:text-[#FFB800] transition-colors">Job Explorer</Link>
+            <Link to="/roadmap" className="landing-nav-link hover:text-[#FFB800] transition-colors">Roadmap</Link>
+            <Link to="/projects" className="landing-nav-link hover:text-[#FFB800] transition-colors">Projects</Link>
+            <Link to="/linkedin" className="landing-nav-link hover:text-[#FFB800] transition-colors">LinkedIn</Link>
           </nav>
 
           <div className="landing-nav-actions flex items-center gap-3">
-            <Link to="/login" className="btn btn-ghost px-5 py-2 text-sm font-semibold hover:text-[#FFB800]">
-              Login
-            </Link>
-            <Link to="/register" className="btn btn-primary px-6 py-2 text-sm font-extrabold shadow-lg">
-              Get Started
-            </Link>
+            {user ? (
+              <Link to="/dashboard" className="btn btn-primary px-5 py-2 text-sm font-extrabold shadow-lg inline-flex items-center gap-2">
+                <span>Enter Cockpit</span>
+                <ArrowRight size={15} />
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-ghost px-4 py-2 text-sm font-semibold hover:text-[#FFB800]">
+                  Login
+                </Link>
+                <Link to="/dashboard" className="btn btn-primary px-5 py-2 text-sm font-extrabold shadow-lg">
+                  Open Platform
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -81,7 +94,7 @@ export default function LandingPage() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141926] border border-[#F59E0B]/30 text-[#FFB800] text-xs font-bold tracking-wide">
                 <Sparkles size={14} className="text-[#FFB800]" />
-                <span>AI Powered Resume & ATS Analyzer</span>
+                <span>AI Powered Resume, Interview & Career Suite</span>
               </div>
 
               {/* Title */}
@@ -93,17 +106,34 @@ export default function LandingPage() {
 
               {/* Subtitle */}
               <p className="text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
-                Upload your resume and get an intelligent ATS analysis with actionable insights to improve your chances of getting noticed.
+                Upload your resume, master multi-round AI mock interviews, connect your LinkedIn profile, and explore tailored job opportunities in one seamless platform.
               </p>
 
-              {/* CTA Button */}
-              <div className="pt-2">
+              {/* CTA Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Link
                   to="/resume"
                   className="btn btn-primary btn-xl text-black font-extrabold shadow-xl inline-flex items-center gap-2 group"
                 >
-                  <span>Analyze My Resume</span>
+                  <FileText size={18} />
+                  <span>Analyze Resume</span>
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link
+                  to="/interview"
+                  className="btn btn-secondary btn-xl text-white font-bold inline-flex items-center gap-2 hover:border-[#FFB800]/50"
+                >
+                  <MessageSquare size={18} className="text-[#FFB800]" />
+                  <span>AI Mock Interview</span>
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className="btn btn-outline btn-xl text-[#F5BF45] font-bold border-[#F5BF45]/40 hover:bg-[#F5BF45]/10 inline-flex items-center gap-2"
+                >
+                  <Zap size={18} />
+                  <span>Open Cockpit</span>
                 </Link>
               </div>
 

@@ -52,16 +52,16 @@ function AppRoutes() {
 
 
       {/* Protected — within app layout */}
-      <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="resume" element={<ResumePage />} />
-        <Route path="interview" element={<InterviewPage />} />
-        <Route path="interview/:id" element={<InterviewSessionPage />} />
-        <Route path="jobs" element={<JobsPage />} />
-        <Route path="roadmap" element={<RoadmapPage />} />
-        <Route path="linkedin" element={<LinkedInPage />} />
-        <Route path="projects" element={<ProjectsPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/resume" element={<ResumePage />} />
+        <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/interview/:id" element={<InterviewSessionPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/roadmap" element={<RoadmapPage />} />
+        <Route path="/linkedin" element={<LinkedInPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* 404 */}
