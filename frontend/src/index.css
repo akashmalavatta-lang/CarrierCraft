@@ -2206,12 +2206,32 @@ video.mirror {
   transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Report section fade in */
-@keyframes reportFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Audio visualizer equalizer bars */
+@keyframes audioBarJump {
+  0%, 100% { height: 4px; opacity: 0.5; }
+  50% { height: 18px; opacity: 1; }
 }
-.report-section {
-  animation: reportFadeIn 0.4s ease-out;
+
+.equalizer-bar {
+  width: 3.5px;
+  background-color: #F5BF45;
+  border-radius: 2px;
+  display: inline-block;
+  animation: audioBarJump 0.75s ease-in-out infinite alternate;
 }
+
+/* Soundwave bars for AI speaking indicator */
+@keyframes wavePulse {
+  0%, 100% { height: 5px; opacity: 0.6; }
+  50% { height: 16px; opacity: 1; }
+}
+
+.wave-bar {
+  width: 2.5px;
+  background-color: #F5BF45;
+  border-radius: 2px;
+  display: inline-block;
+  animation: wavePulse 0.55s ease-in-out infinite alternate;
+}
+
 
