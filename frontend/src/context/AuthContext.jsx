@@ -18,32 +18,26 @@ const DEFAULT_USER = {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
+      const token = localStorage.getItem('cc_token');
       const saved = localStorage.getItem('cc_user');
-      if (saved) return JSON.parse(saved);
+      if (token && saved) return JSON.parse(saved);
     } catch {}
-    return DEFAULT_USER;
+    return null;
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Auto-refresh token if unauthorized event is received
+  // Auto-clear session when unauthorized
   useEffect(() => {
-    const handleUnauthorized = async () => {
-      try {
-        const res = await authAPI.login({
-          email: 'demo@careercraft.io',
-          password: 'Password123!'
-        });
-        const { access_token, user: apiUser } = res.data;
-        localStorage.setItem('cc_token', access_token);
-        localStorage.setItem('cc_user', JSON.stringify(apiUser));
-        setUser(apiUser);
-      } catch {}
+    const handleUnauthorized = () => {
+      localStorage.removeItem('cc_token');
+      localStorage.removeItem('cc_user');
+      setUser(null);
     };
     window.addEventListener('cc_auth_unauthorized', handleUnauthorized);
     return () => window.removeEventListener('cc_auth_unauthorized', handleUnauthorized);
   }, []);
 
-  // Restore session from localStorage on mount, or auto-initialize valid demo session
+  // Restore authenticated session from localStorage on mount
   useEffect(() => {
     let isMounted = true;
 
@@ -56,62 +50,29 @@ export function AuthProvider({ children }) {
           const parsed = JSON.parse(savedUser);
           if (isMounted) setUser(parsed);
 
-          // Verify token in background
+          // Verify token against backend
           try {
             const meRes = await authAPI.me();
             if (meRes.data?.user && isMounted) {
               setUser(meRes.data.user);
               localStorage.setItem('cc_user', JSON.stringify(meRes.data.user));
             }
-            if (isMounted) setLoading(false);
-            return;
           } catch {
-            // Token expired or invalid, clear and obtain fresh demo token below
+            // Token expired or invalid
             localStorage.removeItem('cc_token');
             localStorage.removeItem('cc_user');
+            if (isMounted) setUser(null);
           }
-        } catch {}
+        } catch {
+          localStorage.removeItem('cc_token');
+          localStorage.removeItem('cc_user');
+          if (isMounted) setUser(null);
+        }
+      } else {
+        if (isMounted) setUser(null);
       }
 
-      // Auto-authenticate with demo user so dashboard and all tools are immediately operable
-      try {
-        const res = await authAPI.login({
-          email: 'demo@careercraft.io',
-          password: 'Password123!'
-        });
-        const { access_token, user: apiUser } = res.data;
-        localStorage.setItem('cc_token', access_token);
-        localStorage.setItem('cc_user', JSON.stringify(apiUser));
-        if (isMounted) setUser(apiUser);
-      } catch {
-        // If login failed (e.g. fresh DB before seeding), register demo user
-        try {
-          const regRes = await authAPI.register({
-            name: 'Akash Malavatta',
-            email: 'demo@careercraft.io',
-            password: 'Password123!',
-            target_role: 'AI / Data Science Engineer',
-            experience_level: 'fresher'
-          });
-          const { access_token, user: regUser } = regRes.data;
-          localStorage.setItem('cc_token', access_token);
-          localStorage.setItem('cc_user', JSON.stringify(regUser));
-          if (isMounted) setUser(regUser);
-        } catch {
-          const defaultUser = {
-            id: 1,
-            name: 'Akash Malavatta',
-            email: 'demo@careercraft.io',
-            target_role: 'AI / Data Science Engineer',
-            experience_level: 'fresher',
-            location: 'Bengaluru, Karnataka, India'
-          };
-          if (isMounted) setUser(defaultUser);
-          localStorage.setItem('cc_user', JSON.stringify(defaultUser));
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+      if (isMounted) setLoading(false);
     };
 
     initAuth();

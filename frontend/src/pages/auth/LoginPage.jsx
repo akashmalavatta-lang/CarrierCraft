@@ -18,11 +18,21 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleFillDemo = () => {
+  const handleQuickDemo = async () => {
     setEmail('demo@careercraft.io');
     setPassword('Password123!');
     setErrorMessage('');
-    toast.success('Loaded demo credentials!');
+    try {
+      setLoading(true);
+      await login('demo@careercraft.io', 'Password123!');
+      toast.success('Signed in as Demo User 🚀');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Demo login error:', err);
+      toast.error('Demo login failed. You can sign in or register a new account.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -128,10 +138,11 @@ export default function LoginPage() {
               </div>
               <button
                 type="button"
-                onClick={handleFillDemo}
+                onClick={handleQuickDemo}
                 className="btn btn-sm btn-outline text-xs whitespace-nowrap"
+                disabled={loading}
               >
-                Use Demo
+                1-Click Demo Sign In
               </button>
             </div>
 

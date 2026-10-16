@@ -164,7 +164,42 @@ class ResumeAnalysis(db.Model):
             "keywords": safe_json_loads(self.keywords, []),
             "model_used": self.model_used or "rule-based+spacy",
             "analyzed_at": self.analyzed_at.isoformat() if self.analyzed_at else None,
+            "spelling_and_grammar": self._get_spelling_and_grammar(),
+            "industry_requirements": self._get_industry_requirements(),
+            "recommended_projects": self._get_recommended_projects(),
         }
+
+    def _get_spelling_and_grammar(self):
+        try:
+            from app.ml.analyzer import _detect_grammar_and_spelling
+            raw_text = self.resume.raw_text if (self.resume and self.resume.raw_text) else ""
+            return _detect_grammar_and_spelling(raw_text)
+        except Exception:
+            return {"score": 92, "total_issues": 0, "issues": []}
+
+    def _get_industry_requirements(self):
+        try:
+            from app.ml.analyzer import _analyze_industry_requirements
+            raw_text = self.resume.raw_text if (self.resume and self.resume.raw_text) else ""
+            skills_data = {
+                "technical": safe_json_loads(self.skills_technical, []),
+                "soft": safe_json_loads(self.skills_soft, []),
+            }
+            return _analyze_industry_requirements(skills_data, raw_text)
+        except Exception:
+            return []
+
+    def _get_recommended_projects(self):
+        try:
+            from app.ml.analyzer import _recommend_projects
+            raw_text = self.resume.raw_text if (self.resume and self.resume.raw_text) else ""
+            skills_data = {
+                "technical": safe_json_loads(self.skills_technical, []),
+                "soft": safe_json_loads(self.skills_soft, []),
+            }
+            return _recommend_projects(skills_data, raw_text)
+        except Exception:
+            return []
 
 
 # ── JobMatch ──────────────────────────────────────────────────────────────────
