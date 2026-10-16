@@ -21,58 +21,22 @@ import TermsPage from './pages/legal/TermsPage';
 
 import './index.css';
 
-import React, { Component } from 'react';
-
-// Error Boundary to prevent white/blank screens on uncaught errors
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('CareerCraft Component Error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-[#05080D] flex flex-col items-center justify-center p-6 text-center text-white">
-          <div className="w-16 h-16 rounded-2xl bg-[#F5BF45]/15 border border-[#F5BF45]/40 flex items-center justify-center text-[#F5BF45] font-black text-xl mb-4">
-            CC
-          </div>
-          <h2 className="text-2xl font-black text-[#F5F7FA] mb-2">View Recovered</h2>
-          <p className="text-sm text-[#A8B3C2] max-w-md mb-6">
-            A temporary component error occurred. Click below to refresh the cockpit view.
-          </p>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false });
-              window.location.reload();
-            }}
-            className="btn btn-primary px-6 py-2.5 font-bold shadow-lg"
-          >
-            Reload Cockpit
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
 function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return <ErrorBoundary>{children}</ErrorBoundary>;
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#05080D] flex flex-col items-center justify-center gap-3 text-center">
+        <div className="spinner spinner-lg text-[#F5BF45]" />
+        <p className="text-xs text-[#A8B3C2] font-semibold tracking-wide">Initializing CareerCraft Cockpit...</p>
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
 }
 
 function PublicRoute({ children }) {
-  const { user } = useAuth();
-  return <ErrorBoundary>{children}</ErrorBoundary>;
+  return children;
 }
 
 function AppRoutes() {

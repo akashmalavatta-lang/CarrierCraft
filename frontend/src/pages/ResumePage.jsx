@@ -173,7 +173,8 @@ export default function ResumePage() {
   const jdScore = matchResult?.scores?.overall || scores.overall || 86;
 
   // Filename & size
-  const filename = selectedResume?.filename || `${(user?.name || 'Akash_Malavatta').replace(/\s+/g, '_')}_Resume.pdf`;
+  const candidateName = typeof user?.name === 'string' && user.name.trim() ? user.name.trim() : 'Akash_Malavatta';
+  const filename = selectedResume?.filename || `${candidateName.replace(/\s+/g, '_')}_Resume.pdf`;
   const fileSize = selectedResume?.file_size
     ? `${(selectedResume.file_size / (1024 * 1024)).toFixed(1)} MB • 2 pages`
     : '1.2 MB • 2 pages';
@@ -532,13 +533,13 @@ export default function ResumePage() {
             <div className="bg-white text-slate-900 rounded-lg p-5 shadow-2xl space-y-3 font-sans text-[10px] leading-tight select-text max-h-[580px] overflow-y-auto">
               <div className="text-center border-b border-slate-200 pb-2">
                 <h2 className="text-base font-black tracking-wider text-slate-950 uppercase">
-                  {user?.name?.toUpperCase() || selectedResume?.user_name || 'AKASH MALAVATTA'}
+                  {(typeof user?.name === 'string' && user.name.trim() ? user.name.toUpperCase() : (selectedResume?.user_name || 'AKASH MALAVATTA'))}
                 </h2>
                 <div className="text-[9px] font-semibold text-slate-600 mt-0.5">
-                  {user?.target_role || 'AI / Data Science Engineer'} | Python | SQL | Machine Learning
+                  {(typeof user?.target_role === 'string' && user.target_role.trim() ? user.target_role : 'AI / Data Science Engineer')} | Python | SQL | Machine Learning
                 </div>
                 <div className="text-[8px] text-slate-500 mt-0.5">
-                  {user?.email || 'akash@email.com'} • {user?.phone || '+91 98765 43210'} • {user?.location || 'Bengaluru, India'} • {user?.linkedin_url || `linkedin.com/in/${(user?.name || 'akash-malavatta').toLowerCase().replace(/\s+/g, '-')}`}
+                  {(typeof user?.email === 'string' && user.email.trim() ? user.email : 'akash@email.com')} • {(typeof user?.phone === 'string' && user.phone.trim() ? user.phone : '+91 98765 43210')} • {(typeof user?.location === 'string' && user.location.trim() ? user.location : 'Bengaluru, India')} • {(typeof user?.linkedin_url === 'string' && user.linkedin_url.trim() ? user.linkedin_url : `linkedin.com/in/${(typeof user?.name === 'string' && user.name.trim() ? user.name : 'akash-malavatta').toLowerCase().replace(/\s+/g, '-')}`)}
                 </div>
               </div>
 

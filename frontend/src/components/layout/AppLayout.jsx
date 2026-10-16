@@ -94,12 +94,16 @@ export default function AppLayout() {
     }
   };
 
-  const initials = user?.name
-    ? user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
-    : 'A';
+  const rawName = typeof user?.name === 'string' && user.name.trim() ? user.name.trim() : 'Akash Malavatta';
+  const nameParts = rawName.split(/\s+/).filter(Boolean);
+  const initials = (nameParts.length > 1
+    ? (nameParts[0][0] || '') + (nameParts[nameParts.length - 1][0] || '')
+    : (nameParts[0]?.[0] || 'A')).toUpperCase();
 
-  const displayName = user?.name || 'Akash';
-  const displayRole = user?.experience_level || 'Student';
+  const displayName = rawName;
+  const displayRole = typeof user?.target_role === 'string' && user.target_role.trim()
+    ? user.target_role.trim()
+    : (typeof user?.experience_level === 'string' && user.experience_level.trim() ? user.experience_level.trim() : 'AI Engineer');
   const isCollapsed = collapsed && !mobileOpen;
 
   // Dynamic search placeholder based on current route
