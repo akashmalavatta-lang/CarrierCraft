@@ -34,13 +34,11 @@ api.interceptors.response.use(
   (error) => {
     const isAuthRoute =
       error.config?.url?.includes('/auth/login') ||
-      error.config?.url?.includes('/auth/register');
+      error.config?.url?.includes('/auth/register') ||
+      error.config?.url?.includes('/auth/me');
 
     if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem('cc_token');
-      localStorage.removeItem('cc_user');
-      // Only dispatch an event or let React router handle unauthenticated state;
-      // avoid window.location.href reload loop
       window.dispatchEvent(new CustomEvent('cc_auth_unauthorized'));
     }
     return Promise.reject(error);

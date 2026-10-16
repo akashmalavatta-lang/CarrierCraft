@@ -586,13 +586,14 @@ input, textarea, select { font-family: inherit; }
   width: 100%;
   position: relative;
   background-color: var(--bg-primary);
-  overflow-x: hidden;
 }
 
-/* ── Sidebar (Sticky In-Flow on Desktop, Drawer on Mobile) ──────────────────── */
+/* ── Sidebar (Fixed Immovable Sidebar on Desktop & Mobile Drawer) ───────────── */
 .sidebar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  bottom: 0;
   height: 100vh;
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
@@ -759,14 +760,21 @@ input, textarea, select { font-family: inherit; }
 
 /* ── Main Content Area ──────────────────────────────────────────────────────── */
 .main-content {
+  margin-left: var(--sidebar-width);
   flex: 1 1 0%;
   min-width: 0;
-  width: 100%;
+  width: calc(100% - var(--sidebar-width));
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--bg-primary);
   max-width: 100%;
+  transition: margin-left var(--transition-slow), width var(--transition-slow);
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed);
+  width: calc(100% - var(--sidebar-collapsed));
 }
 
 .main-content > main {
@@ -1639,8 +1647,9 @@ input, textarea, select { font-family: inherit; }
     max-width: 280px !important;
   }
   .main-content {
-    width: 100%;
-    min-width: 100%;
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
   }
   .topbar {
     padding: 0 16px;

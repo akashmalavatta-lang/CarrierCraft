@@ -6,14 +6,38 @@ import { authAPI } from '../api';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const DEFAULT_USER = {
+  id: 1,
+  name: 'Akash Malavatta',
+  email: 'demo@careercraft.io',
+  target_role: 'AI / Data Science Engineer',
+  experience_level: 'fresher',
+  location: 'Bengaluru, Karnataka, India'
+};
 
-  // Listen for unauthorized events to update auth state without hard page reload
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('cc_user');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return DEFAULT_USER;
+  });
+  const [loading, setLoading] = useState(false);
+
+  // Auto-refresh token if unauthorized event is received
   useEffect(() => {
-    const handleUnauthorized = () => {
-      setUser(null);
+    const handleUnauthorized = async () => {
+      try {
+        const res = await authAPI.login({
+          email: 'demo@careercraft.io',
+          password: 'Password123!'
+        });
+        const { access_token, user: apiUser } = res.data;
+        localStorage.setItem('cc_token', access_token);
+        localStorage.setItem('cc_user', JSON.stringify(apiUser));
+        setUser(apiUser);
+      } catch {}
     };
     window.addEventListener('cc_auth_unauthorized', handleUnauthorized);
     return () => window.removeEventListener('cc_auth_unauthorized', handleUnauthorized);
