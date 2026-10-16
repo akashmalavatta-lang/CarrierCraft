@@ -270,16 +270,21 @@ class InterviewQuestion(db.Model):
     answered_at = db.Column(db.DateTime)
 
     def to_dict(self, include_expected=False):
+        rubric_data = safe_json_loads(self.rubric, {})
+        # Extract follow-up question stored during evaluation (no schema change needed)
+        follow_up = rubric_data.pop("_follow_up", None) if isinstance(rubric_data, dict) else None
+
         d = {
             "id": self.id,
             "order_num": self.order_num,
             "question_type": self.question_type,
             "question_text": self.question_text,
-            "rubric": safe_json_loads(self.rubric, {}),
+            "rubric": rubric_data,
             "user_answer": self.user_answer,
             "score": round(self.score, 1) if self.score is not None else None,
             "feedback": self.feedback,
             "improved_answer": self.improved_answer,
+            "follow_up_question": follow_up or "",
             "time_taken_seconds": self.time_taken_seconds,
             "is_answered": self.user_answer is not None,
         }

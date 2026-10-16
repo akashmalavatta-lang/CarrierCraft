@@ -227,7 +227,7 @@ export default function InterviewSessionPage() {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-      } catch (e) {}
+      } catch (e) { }
       setIsListening(false);
     }
   };
@@ -625,22 +625,20 @@ export default function InterviewSessionPage() {
                   <button
                     key={q.id}
                     onClick={() => handleSelectQuestion(idx)}
-                    className={`w-full text-left p-2.5 rounded-lg text-xs font-medium flex items-center justify-between transition-all ${
-                      isActive
+                    className={`w-full text-left p-2.5 rounded-lg text-xs font-medium flex items-center justify-between transition-all ${isActive
                         ? 'bg-brand-500 text-white font-bold shadow-md ring-1 ring-cyan-400'
                         : isAnswered
-                        ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
-                        : 'bg-surface text-secondary hover:bg-slate-800'
-                    }`}
+                          ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                          : 'bg-surface text-secondary hover:bg-slate-800'
+                      }`}
                   >
                     <div className="flex items-center gap-2 truncate">
                       <span>Q{idx + 1}.</span>
                       <span className="truncate">{q.question_text}</span>
                     </div>
                     {isAnswered ? (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400'
-                      }`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400'
+                        }`}>
                         {q.score != null ? `${q.score}%` : '✓'}
                       </span>
                     ) : (

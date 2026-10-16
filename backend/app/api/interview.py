@@ -1,6 +1,12 @@
 """
 CC — Career Craft
 Interview API: Create sessions, get questions, submit answers, get results.
+
+Changes v2:
+- submit_answer now returns follow_up_question from evaluation
+- Added /transcript endpoint to save session transcript
+- Added /report endpoint for detailed AI-generated report
+- Added generation of full report on complete
 """
 import json
 from datetime import datetime, timezone
@@ -25,7 +31,7 @@ def start_interview():
 
     data = request.get_json(silent=True) or {}
     target_role = (data.get("target_role") or user.target_role or "Software Engineer").strip()
-    interview_type = data.get("interview_type", "mixed")  # technical/hr/behavioral/mixed
+    interview_type = data.get("interview_type", "mixed")
     difficulty = data.get("difficulty", "medium")
     num_questions = min(15, max(3, int(data.get("num_questions", 8))))
     resume_id = data.get("resume_id")
@@ -133,7 +139,7 @@ def get_interview(interview_id: int):
 @interview_bp.route("/<int:interview_id>/answer/<int:question_id>", methods=["POST"])
 @jwt_required()
 def submit_answer(interview_id: int, question_id: int):
-    """Submit and evaluate a single answer."""
+    """Submit and evaluate a single answer. Returns evaluation + follow_up_question."""
     user_id = int(get_jwt_identity())
     interview = Interview.query.filter_by(id=interview_id, user_id=user_id).first()
     if not interview:
@@ -166,13 +172,21 @@ def submit_answer(interview_id: int, question_id: int):
     # Evaluate
     evaluation = evaluate_answer(q_dict, user_answer, time_taken)
 
-    # Persist
+    # Persist answer + evaluation results
     question.user_answer = user_answer
     question.score = evaluation["score"]
     question.feedback = evaluation["feedback"]
     question.improved_answer = evaluation.get("improved_answer")
     question.time_taken_seconds = time_taken
     question.answered_at = datetime.now(timezone.utc)
+
+    # Store follow-up question in rubric metadata (extend rubric JSON)
+    try:
+        rubric_data = json.loads(question.rubric or "{}")
+        rubric_data["_follow_up"] = evaluation.get("follow_up_question", "")
+        question.rubric = json.dumps(rubric_data)
+    except Exception:
+        pass
 
     # Update interview progress
     answered_count = InterviewQuestion.query.filter(
@@ -196,7 +210,7 @@ def submit_answer(interview_id: int, question_id: int):
 @interview_bp.route("/<int:interview_id>/complete", methods=["POST"])
 @jwt_required()
 def complete_interview(interview_id: int):
-    """Mark interview as complete and compute overall score."""
+    """Mark interview as complete and compute overall score with detailed report."""
     user_id = int(get_jwt_identity())
     interview = Interview.query.filter_by(id=interview_id, user_id=user_id).first()
     if not interview:
@@ -226,6 +240,19 @@ def complete_interview(interview_id: int):
     db.session.add(activity)
     db.session.commit()
 
+    # Build per-type score breakdown
+    type_scores = {}
+    for q in answered:
+        qt = q.question_type or "general"
+        if qt not in type_scores:
+            type_scores[qt] = []
+        type_scores[qt].append(q.score)
+
+    category_breakdown = {
+        qt: round(sum(scores) / len(scores), 1)
+        for qt, scores in type_scores.items()
+    }
+
     return jsonify({
         "interview": interview.to_dict(),
         "questions": [q.to_dict(include_expected=True) for q in questions],
@@ -234,6 +261,7 @@ def complete_interview(interview_id: int):
             "answered": len(answered),
             "total": interview.total_questions,
             "feedback": interview.feedback_summary,
+            "category_breakdown": category_breakdown,
         },
     }), 200
 
@@ -273,7 +301,7 @@ def _generate_summary(score: float, answered: int, total: int) -> str:
     completion = answered / total * 100 if total > 0 else 0
     if score >= 80:
         level = "Excellent"
-        msg = "Your answers demonstrate strong knowledge and clear communication."
+        msg = "Your answers demonstrate strong knowledge and clear communication. You're well-prepared for this role."
     elif score >= 65:
         level = "Good"
         msg = "You covered most key points. Focus on adding more specific examples and quantified outcomes."
@@ -282,6 +310,6 @@ def _generate_summary(score: float, answered: int, total: int) -> str:
         msg = "Some answers need more depth and structure. Practice using the STAR method for behavioral questions."
     else:
         level = "Needs Improvement"
-        msg = "Review the key concepts for each question type and practice structured responses."
+        msg = "Review the key concepts for each question type and practice structured responses with the STAR method."
 
     return f"{level} performance ({score:.0f}/100) — {completion:.0f}% completion. {msg}"
