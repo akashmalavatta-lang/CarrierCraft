@@ -52,6 +52,9 @@ def update_profile():
     if "phone" in data:
         user.phone = data["phone"].strip()[:30]
 
+    if "linkedin_url" in data:
+        user.linkedin_url = data["linkedin_url"].strip()[:300]
+
     db.session.commit()
     return jsonify({
         "message": "Profile updated",

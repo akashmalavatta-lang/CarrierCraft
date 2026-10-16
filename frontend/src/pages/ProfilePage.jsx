@@ -27,6 +27,7 @@ export default function ProfilePage() {
   const [experienceLevel, setExperienceLevel] = useState('fresher');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Password fields
@@ -46,6 +47,7 @@ export default function ProfilePage() {
       setExperienceLevel(user.experience_level || 'fresher');
       setLocation(user.location || '');
       setPhone(user.phone || '');
+      setLinkedinUrl(user.linkedin_url || '');
     }
   }, [user]);
 
@@ -64,6 +66,7 @@ export default function ProfilePage() {
         experience_level: experienceLevel,
         location: location.trim(),
         phone: phone.trim(),
+        linkedin_url: linkedinUrl.trim(),
       });
       updateUser(res.data.profile);
       toast.success('Profile updated successfully!');
@@ -266,6 +269,23 @@ export default function ProfilePage() {
                     onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label" htmlFor="prof-linkedin">LinkedIn Profile URL</label>
+              <div className="input-icon-wrapper">
+                <div className="input-icon flex items-center justify-center font-bold text-[#F5BF45] text-xs">
+                  in
+                </div>
+                <input
+                  id="prof-linkedin"
+                  type="text"
+                  className="form-control with-icon"
+                  placeholder="https://linkedin.com/in/your-profile"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                />
               </div>
             </div>
 

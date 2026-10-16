@@ -52,7 +52,11 @@ def start_interview():
             analysis = resume.analysis
             resume_skills = json.loads(analysis.skills_technical or "[]")
             projects = json.loads(analysis.projects or "[]")
-            project_names = [p.get("title", "") for p in projects if p.get("title")]
+            project_names = [
+                (p.get("title") or p.get("name") or str(p)) if isinstance(p, dict) else str(p)
+                for p in projects
+                if p
+            ]
 
     # Generate questions
     questions_data = generate_interview(

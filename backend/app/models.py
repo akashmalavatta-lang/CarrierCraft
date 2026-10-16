@@ -35,6 +35,7 @@ class User(db.Model):
     experience_level = db.Column(db.String(50), default="fresher")  # fresher/junior/mid
     location = db.Column(db.String(200))
     phone = db.Column(db.String(30))
+    linkedin_url = db.Column(db.String(300))
     avatar_url = db.Column(db.String(500))
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=utcnow)
@@ -57,6 +58,7 @@ class User(db.Model):
             "experience_level": self.experience_level,
             "location": self.location,
             "phone": self.phone,
+            "linkedin_url": self.linkedin_url or "",
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 

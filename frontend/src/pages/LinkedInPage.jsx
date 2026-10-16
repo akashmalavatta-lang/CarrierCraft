@@ -51,6 +51,18 @@ export default function LinkedInPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [apiResult, setApiResult] = useState(null);
 
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        targetRole: user.target_role || prev.targetRole,
+        location: user.location || prev.location,
+        linkedinUrl: user.linkedin_url || prev.linkedinUrl,
+      }));
+    }
+  }, [user]);
+
   // Suggested Headlines
   const headlineSuggestions = [
     {

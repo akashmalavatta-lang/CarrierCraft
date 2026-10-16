@@ -28,6 +28,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [targetRole, setTargetRole] = useState(ROLES[0]);
   const [experienceLevel, setExperienceLevel] = useState('fresher');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -65,6 +66,7 @@ export default function RegisterPage() {
         password,
         target_role: targetRole,
         experience_level: experienceLevel,
+        linkedin_url: linkedinUrl.trim(),
       });
       toast.success('Account created! Welcome to Career Craft 🚀');
       navigate('/dashboard');
@@ -263,6 +265,25 @@ export default function RegisterPage() {
                       <option value="senior">Senior (5+ yrs)</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="reg-linkedin">
+                  LinkedIn Profile URL (Optional)
+                </label>
+                <div className="input-icon-wrapper">
+                  <div className="input-icon flex items-center justify-center font-bold text-[#F5BF45] text-xs">
+                    in
+                  </div>
+                  <input
+                    id="reg-linkedin"
+                    type="text"
+                    className="form-control with-icon"
+                    placeholder="https://linkedin.com/in/your-profile"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                  />
                 </div>
               </div>
 

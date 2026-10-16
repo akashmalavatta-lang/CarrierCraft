@@ -52,8 +52,9 @@ def register():
         name=name,
         email=email,
         password_hash=password_hash,
-        target_role=data.get("target_role", ""),
+        target_role=data.get("target_role", "Software Engineer"),
         experience_level=data.get("experience_level", "fresher"),
+        linkedin_url=data.get("linkedin_url", "").strip(),
     )
     db.session.add(user)
     db.session.flush()  # get user.id before commit

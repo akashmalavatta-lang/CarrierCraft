@@ -9,9 +9,11 @@ import {
   Check, Briefcase, GraduationCap, Layout, Cpu, Download, Share2,
   Upload, Eye, AlertOctagon, Lightbulb, CheckCircle
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import AtsScoreGauge from '../components/common/AtsScoreGauge';
 
 export default function ResumePage() {
+  const { user } = useAuth();
   const [resumes, setResumes] = useState([]);
   const [selectedResume, setSelectedResume] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -171,7 +173,7 @@ export default function ResumePage() {
   const jdScore = matchResult?.scores?.overall || scores.overall || 86;
 
   // Filename & size
-  const filename = selectedResume?.filename || 'Jeevan_Resume.pdf';
+  const filename = selectedResume?.filename || `${(user?.name || 'Akash_Malavatta').replace(/\s+/g, '_')}_Resume.pdf`;
   const fileSize = selectedResume?.file_size
     ? `${(selectedResume.file_size / (1024 * 1024)).toFixed(1)} MB • 2 pages`
     : '1.2 MB • 2 pages';
@@ -530,13 +532,13 @@ export default function ResumePage() {
             <div className="bg-white text-slate-900 rounded-lg p-5 shadow-2xl space-y-3 font-sans text-[10px] leading-tight select-text max-h-[580px] overflow-y-auto">
               <div className="text-center border-b border-slate-200 pb-2">
                 <h2 className="text-base font-black tracking-wider text-slate-950 uppercase">
-                  {selectedResume?.user_name || 'JEEVAN'}
+                  {user?.name?.toUpperCase() || selectedResume?.user_name || 'AKASH MALAVATTA'}
                 </h2>
                 <div className="text-[9px] font-semibold text-slate-600 mt-0.5">
-                  Data Analyst | Python | SQL | Machine Learning
+                  {user?.target_role || 'AI / Data Science Engineer'} | Python | SQL | Machine Learning
                 </div>
                 <div className="text-[8px] text-slate-500 mt-0.5">
-                  jeevan@email.com • +91 98765 43210 • Bengaluru, India • linkedin.com/in/jeevan
+                  {user?.email || 'akash@email.com'} • {user?.phone || '+91 98765 43210'} • {user?.location || 'Bengaluru, India'} • {user?.linkedin_url || `linkedin.com/in/${(user?.name || 'akash-malavatta').toLowerCase().replace(/\s+/g, '-')}`}
                 </div>
               </div>
 
