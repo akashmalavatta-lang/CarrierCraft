@@ -9,6 +9,29 @@ CareerCraft is an enterprise-grade, evidence-based AI career platform built spec
 
 ---
 
+# 🚀 CarrierCraft – AI-Powered Resume & Interview Coach
+
+An AI-powered platform that helps students and job seekers improve their resumes, prepare for interviews, and build career confidence.
+
+🌐 **Live Website:** https://carriercraft-1-a4zl.onrender.com
+
+## 📂 Project Repositories
+
+- **Akash Malavatta:** https://github.com/akashmalavatta-lang/CarrierCraft/
+- **Jeevandeep:** https://github.com/Jeevandeep2/CarrierCraft/
+
+## ✨ Key Features
+
+- 📄 Resume Analysis
+- 🎯 ATS-Friendly Resume Guidance
+- 🤖 AI-Powered Career Assistance
+- 🎤 Interview Preparation
+- 📈 Personalized Improvement Suggestions
+---
+
+⭐ **CarrierCraft — Build a Stronger Resume. Practice Smarter. Get Career-Ready.**
+
+
 ## 📑 Table of Contents
 
 - [Architectural Overview](#-architectural-overview)
