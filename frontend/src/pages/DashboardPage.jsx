@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import {
   FileText, MessageSquare, Briefcase, Map, FolderKanban,
   Zap, Award, TrendingUp, AlertCircle, ArrowRight,
-  CheckCircle, Plus, RefreshCw, Star, Flame, Sparkles
+  CheckCircle, Plus, RefreshCw, Star, Flame, Sparkles,
+  Trophy, Calendar
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CareerOnboardingHub from '../components/common/CareerOnboardingHub';
@@ -62,46 +63,101 @@ export default function DashboardPage() {
 
   return (
     <div className="page-container">
-      {/* Welcome Banner */}
-      <div className="dashboard-hero-card mb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+      {/* Personalized User Hero & Individual Progress Banner */}
+      <div className="dashboard-hero-card mb-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div className="max-w-xl">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="badge badge-brand">
-                <Sparkles size={12} className="mr-1 text-brand-300" />
-                AI Career Cockpit
+                <Sparkles size={12} className="mr-1 text-[#F5BF45]" />
+                Personalized Career Cockpit
               </span>
-              <span className="text-xs text-muted">Role Target:</span>
-              <span className="font-semibold text-xs text-brand-400">
+              <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#101A26] border border-[#253342] text-[#F5BF45]">
+                Level 4 Specialist
+              </span>
+              <span className="text-xs text-[#A8B3C2]">Target Role:</span>
+              <span className="font-bold text-xs text-[#F5F7FA]">
                 {user?.target_role || 'AI / Data Science Engineer'}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#F5F7FA]">
+
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-[#F5F7FA]">
               Welcome back, {user?.name || 'Akash Malavatta'}
             </h1>
-            <p className="text-xs md:text-sm text-[#A8B3C2] mt-1">
-              Your career readiness, resume diagnostics, and AI mock interview activity in one unified cockpit.
+            <p className="text-xs md:text-sm text-[#A8B3C2] mt-1.5 leading-relaxed">
+              Track your individual career velocity, practice streak, ATS resume benchmarks, and AI mock interview readiness in real-time.
             </p>
+
+            {/* Individual XP Level Progress Bar */}
+            <div className="mt-4 p-3 rounded-xl bg-[#0B121B] border border-[#253342]">
+              <div className="flex justify-between items-center text-xs mb-1.5">
+                <span className="text-[#A8B3C2] flex items-center gap-1.5 font-medium">
+                  <Zap size={14} className="text-[#F5BF45]" />
+                  <span>Level Progress: <strong>1,240 XP</strong> / 1,500 XP to Level 5</span>
+                </span>
+                <span className="text-[#F5BF45] font-bold">83%</span>
+              </div>
+              <div className="w-full bg-[#101A26] h-2 rounded-full overflow-hidden border border-[#253342]">
+                <div
+                  className="bg-gradient-to-r from-[#D99B22] to-[#F5BF45] h-full rounded-full transition-all duration-500"
+                  style={{ width: '83%' }}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchDashboard}
-              className="btn btn-outline btn-sm"
-              title="Refresh metrics"
-            >
-              <RefreshCw size={15} />
-            </button>
-            <Link to="/resume" className="btn btn-primary btn-sm">
-              <Plus size={16} className="mr-1" />
-              <span>Analyze Resume</span>
-            </Link>
+          {/* 7-Day Practice Streak Bar Card */}
+          <div className="w-full lg:w-auto p-4 rounded-2xl bg-[#0B121B] border border-[#253342] shadow-xl">
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center">
+                  <Flame size={18} className="animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#F5F7FA]">5-Day Practice Streak</div>
+                  <div className="text-[10px] text-[#A8B3C2]">Consistency accelerates offers</div>
+                </div>
+              </div>
+              <span className="text-xs font-black text-[#F5BF45]">+100 XP at 7d</span>
+            </div>
+
+            {/* Mon - Sun Mini Streak Bubbles */}
+            <div className="grid grid-cols-7 gap-1.5 text-center">
+              {[
+                { day: 'M', done: true },
+                { day: 'T', done: true },
+                { day: 'W', done: true },
+                { day: 'T', done: true },
+                { day: 'F', done: true },
+                { day: 'S', done: false, isToday: true },
+                { day: 'S', done: false },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-bold flex flex-col items-center gap-1 transition ${
+                    item.isToday
+                      ? 'bg-[#F5BF45]/20 border border-[#F5BF45] text-[#F5BF45]'
+                      : item.done
+                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                      : 'bg-[#101A26] text-[#7E8D9F] border border-[#253342]'
+                  }`}
+                >
+                  <span>{item.day}</span>
+                  <span className="text-[11px]">{item.done ? '✓' : item.isToday ? '🔥' : '○'}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-[#253342] flex items-center justify-between text-[11px]">
+              <span className="text-[#A8B3C2]">Today: Practice 1 Mock Question</span>
+              <Link to="/interview" className="text-[#F5BF45] font-bold hover:underline flex items-center gap-0.5">
+                <span>Start Practice</span>
+                <ArrowRight size={12} />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* ── Career Stack Setup & Feature Connector ── */}
-      <CareerOnboardingHub onComplete={fetchDashboard} />
 
       {/* 4 Key Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -421,6 +477,29 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* ── Classic Career Setup & Future Connector (Kept last with classic styling) ── */}
+      <div className="mt-12 pt-8 border-t border-[#253342]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="badge badge-brand text-[11px]">
+                <Sparkles size={12} className="mr-1 text-[#F5BF45]" />
+                Career Acceleration Core
+              </span>
+              <span className="text-xs text-[#A8B3C2]">Sync Profile & Pre-Interview Alignment</span>
+            </div>
+            <h2 className="text-xl font-black text-[#F5F7FA]">
+              Career Setup & Future Connector
+            </h2>
+            <p className="text-xs text-[#A8B3C2]">
+              Connect your verified professional profile, extract skills with 99% accuracy, and synchronize customized AI recommendations across every module.
+            </p>
+          </div>
+        </div>
+
+        <CareerOnboardingHub onComplete={fetchDashboard} />
       </div>
     </div>
   );

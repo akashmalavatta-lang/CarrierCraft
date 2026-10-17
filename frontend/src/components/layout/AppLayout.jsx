@@ -4,9 +4,11 @@ import {
   LayoutDashboard, FileText, MessageSquare, Briefcase, Map,
   FolderKanban, User, LogOut, ChevronLeft, ChevronRight, Menu, X,
   Bell, ChevronDown, Search, Crown, Sparkles, CheckCircle2,
-  FileCheck, Shield, Zap, ExternalLink, HelpCircle
+  FileCheck, Shield, Zap, ExternalLink, HelpCircle, Flame, Trophy
 } from 'lucide-react';
 import { CareerCraftLogo, LinkedInIcon } from '../common/Icons';
+import LeaderboardModal from '../common/LeaderboardModal';
+import StreakModal from '../common/StreakModal';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -37,6 +39,8 @@ export default function AppLayout() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notifMenuOpen, setNotifMenuOpen] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
   const profileRef = useRef(null);
@@ -271,7 +275,36 @@ export default function AppLayout() {
             </form>
           </div>
 
-          <div className="topbar-right flex items-center gap-3">
+          <div className="topbar-right flex items-center gap-2.5">
+            {/* Daily Practice Streak Pill */}
+            <button
+              onClick={() => setShowStreakModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 text-xs font-bold transition shadow-xs"
+              title="Practice Streak: 5 Days (Click to view streak calendar)"
+            >
+              <Flame size={14} className="animate-pulse text-rose-400" />
+              <span>5d</span>
+            </button>
+
+            {/* XP Points Pill */}
+            <div
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F5BF45]/10 border border-[#F5BF45]/30 text-[#F5BF45] text-xs font-bold"
+              title="Career XP: 1,240 XP (Level 4 Specialist)"
+            >
+              <Zap size={13} />
+              <span>1,240 XP</span>
+            </div>
+
+            {/* Real-Time Leaderboard Pill */}
+            <button
+              onClick={() => setShowLeaderboardModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#101A26] border border-[#253342] text-[#F5F7FA] hover:border-[#F5BF45]/60 hover:text-[#F5BF45] text-xs font-bold transition"
+              title="Real-Time Leaderboard: Rank #12"
+            >
+              <Trophy size={13} className="text-[#F5BF45]" />
+              <span className="hidden sm:inline">Rank #12</span>
+            </button>
+
             {/* Notification Bell with Red Badge */}
             <div className="relative" ref={notifRef}>
               <button
@@ -431,6 +464,20 @@ export default function AppLayout() {
           </div>
         </div>
       )}
+
+      {/* ── Real-Time Leaderboard Modal ───────────────────────────────────── */}
+      <LeaderboardModal
+        isOpen={showLeaderboardModal}
+        onClose={() => setShowLeaderboardModal(false)}
+        user={user}
+      />
+
+      {/* ── Daily Practice Streak Modal ────────────────────────────────────── */}
+      <StreakModal
+        isOpen={showStreakModal}
+        onClose={() => setShowStreakModal(false)}
+        streak={5}
+      />
     </div>
   );
 }
