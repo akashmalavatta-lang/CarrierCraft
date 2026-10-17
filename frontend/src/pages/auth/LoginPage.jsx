@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 
 import { CareerCraftLogo } from '../../components/common/Icons';
+import GoogleAuthModal from '../../components/common/GoogleAuthModal';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,19 +16,23 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
+    setShowGoogleModal(true);
+  };
+
+  const handleConfirmGoogleAuth = async (googleUser) => {
     try {
       setLoading(true);
       await loginWithGoogle({
-        name: 'Akash Malavatta',
-        email: email.includes('@') ? email.trim().toLowerCase() : 'akash.student@gmail.com',
-        target_role: 'Software Engineer',
-        linkedin_url: 'https://linkedin.com/in/akash-malavatta'
+        name: googleUser.name,
+        email: googleUser.email,
+        target_role: googleUser.target_role || 'Software Engineer',
       });
-      toast.success('Signed in with Google Authentication! 🚀');
+      toast.success(`Welcome, ${googleUser.name}! Signed in with Google 🚀`);
       navigate('/dashboard');
     } catch (err) {
       console.error('Google Auth error:', err);
@@ -302,6 +307,13 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+        onConfirm={handleConfirmGoogleAuth}
+        initialEmail={email}
+      />
     </div>
   );
 }

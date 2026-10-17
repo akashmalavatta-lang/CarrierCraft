@@ -7,6 +7,7 @@ import {
   CheckCircle2, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles
 } from 'lucide-react';
 import { CareerCraftLogo } from '../../components/common/Icons';
+import GoogleAuthModal from '../../components/common/GoogleAuthModal';
 
 const ROLES = [
   'Software Engineer',
@@ -31,21 +32,26 @@ export default function RegisterPage() {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignUp = () => {
+    setShowGoogleModal(true);
+  };
+
+  const handleConfirmGoogleAuth = async (googleUser) => {
     try {
       setLoading(true);
       await loginWithGoogle({
-        name: name.trim() || 'Akash Malavatta',
-        email: email.trim().toLowerCase() || 'akash.student@gmail.com',
-        target_role: targetRole,
+        name: googleUser.name,
+        email: googleUser.email,
+        target_role: googleUser.target_role || targetRole,
         experience_level: experienceLevel,
-        linkedin_url: linkedinUrl.trim() || 'https://linkedin.com/in/akash-malavatta'
+        linkedin_url: linkedinUrl.trim(),
       });
-      toast.success('Signed up with Google Authentication! 🚀');
+      toast.success(`Welcome to CareerCraft, ${googleUser.name}! 🚀`);
       navigate('/dashboard');
     } catch (err) {
       console.error('Google Sign Up error:', err);
@@ -360,6 +366,14 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+        onConfirm={handleConfirmGoogleAuth}
+        initialEmail={email}
+        initialName={name}
+      />
     </div>
   );
 }

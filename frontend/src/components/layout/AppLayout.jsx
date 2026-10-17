@@ -98,16 +98,18 @@ export default function AppLayout() {
     }
   };
 
-  const rawName = typeof user?.name === 'string' && user.name.trim() ? user.name.trim() : 'Akash Malavatta';
+  const rawName = (typeof user?.name === 'string' && user.name.trim())
+    ? user.name.trim()
+    : (user?.email ? user.email.split('@')[0].replace('.', ' ').replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Career Explorer');
   const nameParts = rawName.split(/\s+/).filter(Boolean);
   const initials = (nameParts.length > 1
     ? (nameParts[0][0] || '') + (nameParts[nameParts.length - 1][0] || '')
-    : (nameParts[0]?.[0] || 'A')).toUpperCase();
+    : (nameParts[0]?.[0] || 'U')).toUpperCase();
 
   const displayName = rawName;
-  const displayRole = typeof user?.target_role === 'string' && user.target_role.trim()
+  const displayRole = (typeof user?.target_role === 'string' && user.target_role.trim())
     ? user.target_role.trim()
-    : (typeof user?.experience_level === 'string' && user.experience_level.trim() ? user.experience_level.trim() : 'AI Engineer');
+    : 'Tech Specialist';
   const isCollapsed = collapsed && !mobileOpen;
 
   // Dynamic search placeholder based on current route

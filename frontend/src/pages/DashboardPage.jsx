@@ -6,16 +6,69 @@ import {
   FileText, MessageSquare, Briefcase, Map, FolderKanban,
   Zap, Award, TrendingUp, AlertCircle, ArrowRight,
   CheckCircle, Plus, RefreshCw, Star, Flame, Sparkles,
-  Trophy, Calendar
+  Trophy, Calendar, Sliders, Compass, Layers, Edit3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CareerOnboardingHub from '../components/common/CareerOnboardingHub';
+import PersonalizationModal from '../components/common/PersonalizationModal';
+
+const getDefaultSkillsForRole = (role = '') => {
+  const r = (role || '').toLowerCase();
+  if (r.includes('front')) {
+    return {
+      current: ['React', 'JavaScript (ES6+)', 'HTML5 / CSS3', 'TailwindCSS', 'Git', 'Responsive Design'],
+      gaps: ['TypeScript', 'Next.js App Router', 'State Management (Zustand/Redux)', 'Web Performance & Lighthouse'],
+      guidance: 'Master Next.js Server Components, optimize Core Web Vitals, and practice Frontend STAR technical interview questions.'
+    };
+  }
+  if (r.includes('back')) {
+    return {
+      current: ['Python', 'SQL (PostgreSQL)', 'FastAPI / Node.js', 'REST API Architecture', 'Git', 'Linux'],
+      gaps: ['Docker & Containerization', 'Redis In-Memory Caching', 'Database Indexing & Query Tuning', 'Microservices Architecture'],
+      guidance: 'Build async high-throughput APIs, design scalable database schemas, and practice Backend Distributed Systems interview questions.'
+    };
+  }
+  if (r.includes('full')) {
+    return {
+      current: ['React', 'Node.js', 'JavaScript / TypeScript', 'SQL / MongoDB', 'Git', 'Express'],
+      gaps: ['System Design (HLD & LLD)', 'Docker / Cloud Deployment', 'GraphQL / WebSockets', 'CI/CD Pipelines'],
+      guidance: 'Bridge modern reactive frontends with robust scalable cloud backends, and master full-stack end-to-end architecture.'
+    };
+  }
+  if (r.includes('cloud') || r.includes('devops')) {
+    return {
+      current: ['Linux OS', 'Docker Containers', 'Git & GitHub Actions', 'Bash Scripting', 'Python', 'Networking Basics'],
+      gaps: ['Kubernetes Cluster Orchestration', 'Terraform (IaC)', 'AWS / Cloud Architecture', 'Prometheus & Grafana Monitoring'],
+      guidance: 'Automate production deployments with GitOps, containerize applications, and master Cloud Reliability Engineering.'
+    };
+  }
+  if (r.includes('cyber') || r.includes('security')) {
+    return {
+      current: ['Network Protocols (TCP/IP)', 'Linux Administration', 'Python Scripting', 'Security Fundamentals', 'Git'],
+      gaps: ['Penetration Testing (OWASP Top 10)', 'SIEM & SOC Operations', 'Cryptography & PKI', 'Incident Response & Threat Hunting'],
+      guidance: 'Audit web vulnerabilities, perform threat modeling, and master security incident remediation.'
+    };
+  }
+  if (r.includes('mobile')) {
+    return {
+      current: ['React Native / Flutter', 'JavaScript / Dart', 'Mobile UI Components', 'REST API Integration', 'Git'],
+      gaps: ['Native Module Bridging (Swift/Kotlin)', 'App Store Deployment & CI', 'Offline Sync & SQLite', 'Mobile State Management'],
+      guidance: 'Build smooth 60fps cross-platform mobile apps with offline caching and native device capabilities.'
+    };
+  }
+  return {
+    current: ['Python', 'Data Analysis (Pandas/NumPy)', 'SQL', 'Scikit-Learn', 'Git', 'Statistical Methods'],
+    gaps: ['Production ML (MLOps)', 'Deep Learning (PyTorch/TensorFlow)', 'Feature Engineering & Stores', 'LLMs & GenAI Systems'],
+    guidance: 'Train deterministic machine learning models, analyze predictive metrics, and practice STAR problem solving.'
+  };
+};
 
 export default function DashboardPage() {
 
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
 
   const fetchDashboard = async () => {
     try {
@@ -43,6 +96,10 @@ export default function DashboardPage() {
     );
   }
 
+  const userName = user?.name || (user?.email ? user.email.split('@')[0].replace('.', ' ').replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Candidate');
+  const targetRole = user?.target_role || 'Software Engineer';
+  const roleSkills = getDefaultSkillsForRole(targetRole);
+
   const readinessRaw = data?.career_readiness || {};
   const readinessScore = typeof readinessRaw.overall === 'number'
     ? Math.round(readinessRaw.overall)
@@ -58,8 +115,8 @@ export default function DashboardPage() {
   const completedInterviews = interview.completed != null ? interview.completed : 2;
 
   const skills = data?.skill_stats || {};
-  const streak = data?.streak_days != null && data?.streak_days > 0 ? data.streak_days : 3;
-  const points = data?.total_points != null && data?.total_points > 0 ? data.total_points : 120;
+  const streak = data?.streak_days != null && data?.streak_days > 0 ? data.streak_days : (user?.streak_days || 5);
+  const points = data?.total_points != null && data?.total_points > 0 ? data.total_points : (user?.total_points || 1240);
 
   return (
     <div className="page-container">
@@ -73,19 +130,27 @@ export default function DashboardPage() {
                 Personalized Career Cockpit
               </span>
               <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#101A26] border border-[#253342] text-[#F5BF45]">
-                Level 4 Specialist
+                {user?.experience_level ? `${user.experience_level.toUpperCase()}` : 'TECH SPECIALIST'}
               </span>
-              <span className="text-xs text-[#A8B3C2]">Target Role:</span>
+              <span className="text-xs text-[#A8B3C2]">Domain Target:</span>
               <span className="font-bold text-xs text-[#F5F7FA]">
-                {user?.target_role || 'AI / Data Science Engineer'}
+                {targetRole}
               </span>
+              <button
+                onClick={() => setShowPersonalizeModal(true)}
+                className="flex items-center gap-1 text-[11px] font-bold text-[#F5BF45] hover:text-white bg-[#F5BF45]/15 hover:bg-[#F5BF45]/30 px-2.5 py-0.5 rounded-lg border border-[#F5BF45]/40 transition shadow-xs"
+                title="Customize your target role and learning goals"
+              >
+                <Sliders size={12} />
+                <span>Customize Role</span>
+              </button>
             </div>
 
             <h1 className="text-2xl md:text-3xl font-black tracking-tight text-[#F5F7FA]">
-              Welcome back, {user?.name || 'Akash Malavatta'}
+              Welcome back, {userName}
             </h1>
             <p className="text-xs md:text-sm text-[#A8B3C2] mt-1.5 leading-relaxed">
-              Track your individual career velocity, practice streak, ATS resume benchmarks, and AI mock interview readiness in real-time.
+              Your individual career console is tailored to <strong>{targetRole}</strong> benchmarks. Track your velocity, practice streak, and ATS readiness in real-time.
             </p>
 
             {/* Individual XP Level Progress Bar */}
@@ -93,14 +158,14 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center text-xs mb-1.5">
                 <span className="text-[#A8B3C2] flex items-center gap-1.5 font-medium">
                   <Zap size={14} className="text-[#F5BF45]" />
-                  <span>Level Progress: <strong>1,240 XP</strong> / 1,500 XP to Level 5</span>
+                  <span>Level Progress: <strong>{points} XP</strong> / 1,500 XP to Level 5</span>
                 </span>
                 <span className="text-[#F5BF45] font-bold">83%</span>
               </div>
               <div className="w-full bg-[#101A26] h-2 rounded-full overflow-hidden border border-[#253342]">
                 <div
                   className="bg-gradient-to-r from-[#D99B22] to-[#F5BF45] h-full rounded-full transition-all duration-500"
-                  style={{ width: '83%' }}
+                  style={{ width: `${Math.min(100, Math.round((points / 1500) * 100))}%` }}
                 />
               </div>
             </div>
@@ -156,6 +221,41 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Smart Personalized Career Guidance Alert ── */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#101A26] via-[#0B121B] to-[#101A26] border border-[#F5BF45]/40 mb-8 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#F5BF45]/15 border border-[#F5BF45]/40 text-[#F5BF45] flex items-center justify-center flex-shrink-0 shadow-md">
+            <Compass size={22} className="animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#F5F7FA]">AI Guidance for Domain:</span>
+              <span className="px-2.5 py-0.5 rounded text-[11px] font-black bg-[#F5BF45] text-[#05080D]">
+                {targetRole}
+              </span>
+            </div>
+            <p className="text-xs text-[#A8B3C2] mt-1 max-w-2xl leading-relaxed">
+              {roleSkills.guidance}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 flex-shrink-0 w-full md:w-auto">
+          <Link
+            to="/interview"
+            className="btn btn-primary btn-sm text-xs font-bold flex-1 md:flex-initial text-center"
+          >
+            Practice {targetRole.split(' ')[0]} Interview
+          </Link>
+          <button
+            onClick={() => setShowPersonalizeModal(true)}
+            className="btn btn-outline btn-sm text-xs font-bold flex-1 md:flex-initial text-center border-[#F5BF45]/40 text-[#F5BF45] hover:bg-[#F5BF45]/10"
+          >
+            Change Domain
+          </button>
         </div>
       </div>
 
@@ -376,13 +476,13 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-1.5 mb-2">
                   <CheckCircle size={15} className="text-emerald-400" />
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                    Detected in Profile ({skills.current_skills?.length || 6})
+                    Detected in Profile ({skills.current_skills?.length || roleSkills.current.length})
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {((skills.current_skills && skills.current_skills.length > 0)
                     ? skills.current_skills
-                    : ['Python', 'Machine Learning', 'Data Analysis', 'SQL', 'React', 'Git']
+                    : roleSkills.current
                   ).map((s, idx) => (
                     <span key={idx} className="badge badge-accent text-xs">
                       {typeof s === 'object' ? s.skill_name || s.name : s}
@@ -396,13 +496,13 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-1.5 mb-2">
                   <AlertCircle size={15} className="text-amber-400" />
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                    Target Gap Skills ({skills.gap_skills?.length || 3})
+                    Target Gap Skills ({skills.gap_skills?.length || roleSkills.gaps.length})
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {((skills.gap_skills && skills.gap_skills.length > 0)
                     ? skills.gap_skills
-                    : ['System Design', 'Docker / Cloud', 'FastAPI / Production ML']
+                    : roleSkills.gaps
                   ).map((s, idx) => (
                     <span key={idx} className="badge badge-amber text-xs">
                       {typeof s === 'object' ? s.skill_name || s.name : s}
@@ -501,6 +601,13 @@ export default function DashboardPage() {
 
         <CareerOnboardingHub onComplete={fetchDashboard} />
       </div>
+
+      {/* ── Career Goals & Domain Personalization Modal ── */}
+      <PersonalizationModal
+        isOpen={showPersonalizeModal}
+        onClose={() => setShowPersonalizeModal(false)}
+        onSaved={fetchDashboard}
+      />
     </div>
   );
 }

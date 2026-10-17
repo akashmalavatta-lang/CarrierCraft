@@ -112,9 +112,17 @@ def login():
 def google_auth():
     """Authenticate or register user via Google identity."""
     data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "akash.student@gmail.com").strip().lower()
-    name = (data.get("name") or "Akash Malavatta").strip()
+    email = (data.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        return jsonify({"error": "A valid Google email address is required"}), 400
+
+    name = (data.get("name") or "").strip()
+    if not name or name.lower() == "user":
+        name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
+
     linkedin_url = (data.get("linkedin_url") or "").strip()
+    target_role = (data.get("target_role") or "Software Engineer").strip()
+    experience_level = (data.get("experience_level") or "fresher").strip()
 
     user = User.query.filter_by(email=email).first()
     if not user:
@@ -123,8 +131,8 @@ def google_auth():
             name=name,
             email=email,
             password_hash=password_hash,
-            target_role=data.get("target_role", "Software Engineer"),
-            experience_level=data.get("experience_level", "fresher"),
+            target_role=target_role,
+            experience_level=experience_level,
             linkedin_url=linkedin_url,
         )
         db.session.add(user)
@@ -138,6 +146,8 @@ def google_auth():
         db.session.add(activity)
     else:
         user.last_login = datetime.now(timezone.utc)
+        if name and name != user.name and user.email == email:
+            user.name = name
         if linkedin_url and not user.linkedin_url:
             user.linkedin_url = linkedin_url
 

@@ -18,12 +18,17 @@ const LEADERBOARD_DATA = [
 export default function LeaderboardModal({ isOpen, onClose, user }) {
   if (!isOpen) return null;
 
+  const userName = user?.name || (user?.email ? user.email.split('@')[0].replace('.', ' ').replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Candidate');
+  const userRole = user?.target_role || 'Tech Specialist';
+  const userXp = typeof user?.total_points === 'number' && user.total_points > 0 ? user.total_points : 1240;
+  const userStreak = typeof user?.streak_days === 'number' && user.streak_days > 0 ? user.streak_days : 5;
+
   const currentUser = {
     rank: 12,
-    name: user?.name ? `${user.name} (You)` : 'Akash Malavatta (You)',
-    role: user?.target_role || 'AI / Data Science Engineer',
-    xp: 1240,
-    streak: 5,
+    name: `${userName} (You)`,
+    role: userRole,
+    xp: userXp,
+    streak: userStreak,
     badge: 'Silver League',
   };
 
@@ -133,24 +138,24 @@ export default function LeaderboardModal({ isOpen, onClose, user }) {
                     #{candidate.rank}
                   </span>
                   <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${candidate.avatarBg} text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0`}>
-                    {candidate.name.split(' ').map(n => n[0]).join('')}
+                    {(isUser ? userName : candidate.name).split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <div className="min-w-0">
                     <div className={`truncate ${isUser ? 'text-[#F5BF45] font-extrabold' : 'text-[#F5F7FA] font-medium'}`}>
-                      {candidate.name}
+                      {isUser ? `${userName} (You)` : candidate.name}
                     </div>
-                    <div className="text-[10px] text-[#A8B3C2] truncate">{candidate.role}</div>
+                    <div className="text-[10px] text-[#A8B3C2] truncate">{isUser ? userRole : candidate.role}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="flex items-center gap-1 text-rose-400 font-semibold text-[11px]">
                     <Flame size={12} />
-                    <span>{candidate.streak}d</span>
+                    <span>{isUser ? userStreak : candidate.streak}d</span>
                   </div>
                   <div className="flex items-center gap-1 text-[#F5BF45] font-black text-xs w-16 justify-end">
                     <Zap size={12} />
-                    <span>{candidate.xp}</span>
+                    <span>{isUser ? userXp : candidate.xp}</span>
                   </div>
                 </div>
               </div>
